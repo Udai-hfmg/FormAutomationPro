@@ -1,15 +1,11 @@
-import { useState } from 'react'
-
 import './App.css'
+import Form1 from './components/Forms/Form1'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-     <h1 className="text-3xl font-bold text-blue-600">
-  Tailwind v4 Working
-</h1>
+    <Form1/>
     </>
   )
 }
