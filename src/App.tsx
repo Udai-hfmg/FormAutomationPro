@@ -1,25 +1,26 @@
+import { Route, Routes } from 'react-router'
 import './App.css'
 import Form1 from './components/Forms/Form1'
 import NewPatientForm from './components/Forms/NewPatientForm'
-import PrivacyPracticesForm from './components/Forms/PrivacyPracticesForm'
-import PaymentAndCollectionPolicy from './components/Forms/PaymentAndCollectionPolicy'
-import PatientPaymentAgreement from './components/Forms/PatientPaymentAgreement'
-import YourInsuranceCompany from './components/Forms/YourInsuranceCompany'
-import HPVScreening from './components/Forms/HPVScreening'
-import HIPAANotice from './components/Forms/HIPPANotice'
+import TestForm from './components/Forms/TestForm'
+import Home from './pages/Home'
+import toast, { Toaster } from 'react-hot-toast';
+import PreviewPage from './components/Forms/PreviewPage'
 
 function App() {
 
   return (
     <>
-    <Form1/>
-    <NewPatientForm/>
-    <HIPAANotice/>
-    <HPVScreening/>
-    <YourInsuranceCompany/>
-    <PatientPaymentAgreement/>
-    <PaymentAndCollectionPolicy/>
-    <PrivacyPracticesForm/>
+      <Toaster />
+
+    {/* <Form1/>
+    <NewPatientForm/> */}
+    {/* <TestForm/> */}
+    <Routes>
+      <Route path='/' element={<Home/>}/>
+      <Route path='/preview' element={<PreviewPage/>}/>
+      {/* <Route path='/test' element={<TestForm/>}/> */}
+    </Routes>
     </>
   )
 }
