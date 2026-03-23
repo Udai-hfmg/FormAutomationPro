@@ -1,0 +1,16 @@
+import { fetchBaseQuery } from "@reduxjs/toolkit/query";
+import { createApi } from "@reduxjs/toolkit/query/react";
+
+const BASR_URL = import.meta.env.VITE_BASE_URL
+
+export const documentApi = createApi({
+    reducerPath:"documentApi",
+    baseQuery:fetchBaseQuery({baseUrl:BASR_URL}),
+    endpoints:(builder)=>({
+        getDocuments:builder.query({
+            query:()=>"api/DocumentTypeVersion"
+        })
+    })
+})
+
+export const {useGetDocumentsQuery}  = documentApi

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.6",
     "axois": "^0.0.1-security",
     "clsx": "^2.1.1",
@@ -17,6 +18,7 @@
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.6.0",
+    "react-redux": "^9.2.0",
     "react-router": "^7.13.1",
     "tailwind-merge": "^3.5.0"
   },
