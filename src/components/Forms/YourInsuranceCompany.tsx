@@ -1,9 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
 import LineInput from "../Input/FormInput";
+import type { PatientData } from "../Input/PatientData";
+import SignatureField from "../Input/SignatureField";
 
-const YourInsuranceCompany = () => {
+const YourInsuranceCompany = ({ patientData }: PatientData) => {
+
+  const [YourInsuranceCompanyDate, setYourInsuranceCompanyDate] = useState("");
+  const [YourInsuranceCompanySignature, setYourInsuranceCompanySignature] = useState("");
+
+  useEffect(() => {
+    console.log("Insurance Company Form Data:", patientData);
+
+    if (patientData) {
+
+      setYourInsuranceCompanyDate(
+        patientData.YourInsuranceCompanyDate
+          ? new Date(patientData.YourInsuranceCompanyDate)
+              .toISOString()
+              .split("T")[0]
+          : ""
+      );
+
+      setYourInsuranceCompanySignature(
+        patientData.YourInsuranceCompanySignature || ""
+      );
+    }
+
+  }, [patientData]);
+
   return (
     <FormContainer>
       <HeaderImage />
@@ -79,14 +105,37 @@ const YourInsuranceCompany = () => {
 
         {/* Signature Row */}
         <div className="flex flex-col sm:flex-row sm:items-end gap-6 mt-4">
+
           <div className="flex items-end gap-2 w-full">
             <label className="whitespace-nowrap">Signature:</label>
-            <LineInput className="flex-1" />
+
+            <SignatureField
+              className="flex-1"
+              value={YourInsuranceCompanySignature}
+              onChange={(dataUrl) => {
+                (prev: any) => ({
+                  ...prev,
+                  YourInsuranceCompanySignature: dataUrl
+                })
+              }}
+            />
+
           </div>
+
           <div className="flex items-end gap-2 w-full sm:w-56">
             <label className="whitespace-nowrap">Date:</label>
-            <LineInput type="date" className="flex-1" />
+
+            <LineInput
+              type="date"
+              className="flex-1"
+              value={YourInsuranceCompanyDate}
+              onChange={(e) =>
+                setYourInsuranceCompanyDate(e.target.value)
+              }
+            />
+
           </div>
+
         </div>
 
         {/* Footer */}

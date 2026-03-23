@@ -2,8 +2,10 @@ import React from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
 import LineInput from "../Input/FormInput";
+import type { PatientData } from "../Input/PatientData";
+import SignatureField from '../Input/SignatureField'
 
-const PrivacyPracticesForm = () => {
+const PrivacyPracticesForm = ({patientData}:PatientData) => {
   return (
     <FormContainer>
          <HeaderImage />
@@ -28,12 +30,10 @@ const PrivacyPracticesForm = () => {
 
         {/* Signature Section */}
         <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-10">
-          <div className="flex items-end gap-2 w-full">
-            <label className="whitespace-nowrap">
-              Patient Signature
-            </label>
-            <LineInput className="flex-1" />
-          </div>
+         <div className="relative w-full overflow-visible">
+  <label className="whitespace-nowrap ">Patient Signature</label>
+  <SignatureField className="flex-1" onChange={(dataUrl) => console.log(dataUrl)} />
+</div>
 
           <div className="flex items-end gap-2 w-full sm:w-60">
             <label>Date</label>
@@ -75,6 +75,7 @@ const PrivacyPracticesForm = () => {
         </div>
 
       </div>
+       {/* <PatientSignaturePad /> */}
     </FormContainer>
   );
 };
