@@ -152,8 +152,8 @@ const Home = () => {
             </Modal>
 
             <Navbar
-                newFormModalOpen={newFormModalOpen}
-                setNewFormModalOpen={setNewFormModalOpen}
+                // newFormModalOpen={newFormModalOpen}
+                // setNewFormModalOpen={setNewFormModalOpen}
             />
 
             {/* Table */}

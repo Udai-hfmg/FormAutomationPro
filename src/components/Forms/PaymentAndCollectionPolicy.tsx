@@ -5,37 +5,13 @@ import LineInput from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 
-const PaymentAndCollectionPolicy = ({ patientData }: PatientData) => {
+const PaymentAndCollectionPolicy = ({ patientData, formData, setFormData }: PatientData) => {
 
-  const [PaymentAndCollectionPolicyPatientName, setPaymentAndCollectionPolicyPatientName] = useState("");
-  const [PaymentAndCollectionPolicyDate, setPaymentAndCollectionPolicyDate] = useState("");
-  const [PaymentAndCollectionPolicySignature, setPaymentAndCollectionPolicySignature] = useState("");
+const patient = patientData?.patient || {}
 
-  useEffect(() => {
-
-    console.log("Payment And Collection Policy Data:", patientData);
-
-    if (patientData) {
-
-     setPaymentAndCollectionPolicyPatientName(
-  `${patientData.patient?.firstName || ""} ${patientData.patient?.lastName || ""}`.trim()
-);
-
-      setPaymentAndCollectionPolicyDate(
-        patientData.PaymentAndCollectionPolicyDate
-          ? new Date(patientData.PaymentAndCollectionPolicyDate)
-              .toISOString()
-              .split("T")[0]
-          : ""
-      );
-
-      setPaymentAndCollectionPolicySignature(
-        patientData.PaymentAndCollectionPolicySignature || ""
-      );
-    }
-
-  }, [patientData]);
-
+  const handleNameChange = (value: string) => {
+    setFormData((prev: any) => ({ ...prev, name: value }));
+  };
   return (
     <FormContainer>
       <HeaderImage />
@@ -95,10 +71,10 @@ const PaymentAndCollectionPolicy = ({ patientData }: PatientData) => {
 
             <LineInput
               className="flex-1"
-              value={PaymentAndCollectionPolicyPatientName}
-              onChange={(e) =>
-                setPaymentAndCollectionPolicyPatientName(e.target.value)
-              }
+              value={patient ? `${patient.firstName || ""} ${patient.lastName || "" }` : ""}
+                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                            handleNameChange(e.target.value)
+                                          }
             />
 
           </div>
@@ -109,10 +85,10 @@ const PaymentAndCollectionPolicy = ({ patientData }: PatientData) => {
             <LineInput
               type="date"
               className="flex-1"
-              value={PaymentAndCollectionPolicyDate}
-              onChange={(e) =>
-                setPaymentAndCollectionPolicyDate(e.target.value)
-              }
+              // value={PaymentAndCollectionPolicyDate}
+              // onChange={(e) =>
+              //   setPaymentAndCollectionPolicyDate(e.target.value)
+              // }
             />
 
           </div>
@@ -128,13 +104,14 @@ const PaymentAndCollectionPolicy = ({ patientData }: PatientData) => {
 
           <SignatureField
             className="flex-1"
-            value={PaymentAndCollectionPolicySignature}
-            onChange={(dataUrl) => {
-             (prev: any) => ({
-                ...prev,
-                PaymentAndCollectionPolicySignature: dataUrl
-              })  
-            }}
+            onChange={(dataUrl:string | null) =>
+               setFormData((prev: any) => ({
+                  ...prev,
+                  signature: dataUrl,
+                }))
+
+
+              }
           />
 
         </div>

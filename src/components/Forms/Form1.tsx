@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import HeaderImage from '../UI/HeaderImage'
 import FormContainer from '../UI/FormContainer'
 import type { PatientDataProps } from '../Input/PatientData'
+import {useSearchParams} from 'react-router'
 
 function HeaderTitles() {
     return <>
@@ -17,19 +18,7 @@ function HeaderTitles() {
 const Form1 = ({setPatientData}:PatientDataProps) => {
 const [email,setEmail]=useState('')
 
-    const getDetails=async()=>{
-        try{
-            if(email.trim()!=''){
-            const response=await fetch(`https://localhost:7057/api/Patient/${email}`)
-            const data=await response.json()
-            // console.log(data)
-            setPatientData(data)
-            }
-        }
-        catch(e){
-            console.error("Error fetching patient data:", e);
-        }
-    }
+   
     return (
         <FormContainer>
             <HeaderImage headerContent={<HeaderTitles />} />
@@ -67,7 +56,7 @@ const [email,setEmail]=useState('')
                     placeholder="your.email@example.com" 
                     value={email}
                      onChange={(e) => setEmail(e.target.value)}
-                        onBlur={getDetails}
+                        
                       />
                 </div>
             </div>

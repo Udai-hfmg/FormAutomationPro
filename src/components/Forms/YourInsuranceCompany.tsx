@@ -11,7 +11,7 @@ const YourInsuranceCompany = ({ patientData }: PatientData) => {
   const [YourInsuranceCompanySignature, setYourInsuranceCompanySignature] = useState("");
 
   useEffect(() => {
-    console.log("Insurance Company Form Data:", patientData);
+    // console.log("Insurance Company Form Data:", patientData);
 
     if (patientData) {
 

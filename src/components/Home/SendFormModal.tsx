@@ -18,7 +18,7 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
   const [phone, setPhone] = useState('')
   const [sendVia, setSendVia] = useState<'email' | 'sms'>('email')
 
-  const canSend = patientName && (sendVia === 'email' ? email : phone)
+  const canSend = (sendVia === 'email' ? email : phone)
 
   const handleSend = () => {
     if (!canSend) return
@@ -106,11 +106,11 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
 
                     {/* Patient name */}
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1.5">Patient Name</label>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1.5">Patient Id</label>
                       <div className="relative">
                         <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)}
-                          placeholder="Full name"
+                          placeholder="PatientId"
                           className={`${inputClass} pl-9 pr-4`}
                           style={{ borderColor: patientName ? 'rgba(26,92,56,0.4)' : undefined }}
                           onFocus={e => (e.target.style.borderColor = '#1a5c38')}

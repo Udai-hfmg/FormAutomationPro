@@ -5,7 +5,7 @@ import FacilityFolders from '../components/Home/FacilityFolders'
 const Main = () => {
   return (
     <>
-    <Navbar newFormModalOpen={false} setNewFormModalOpen={() => {}} />
+    <Navbar  />
     <FacilityFolders/>
     </>
   )

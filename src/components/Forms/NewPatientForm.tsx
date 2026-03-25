@@ -22,24 +22,26 @@ const LineInput = ({ className = "", type, name, value, onChange }: LineInputPro
   />
 );
 
-const NewPatientForm = ({ patientData }: PatientData) => {
+const NewPatientForm = ({ patientData,formData,setFormData }: PatientData) => {
 
-  const [formData, setFormData] = useState<any>({});
+   const data = formData.newPatient || {}
+// console.log('this data',data);
 
   /* LOAD DATA FROM BACKEND */
 
   useEffect(() => {
+  if (!patientData) return;
 
-    if (!patientData) return;
-
-    setFormData({
-
-      /* PATIENT */
+  setFormData((prev: any) => ({
+    ...prev,
+    newPatient: {
+      ...prev.newPatient,
 
       firstName: patientData?.patient?.firstName || "",
-      middleInitial: patientData?.patient?.middleInitial || "",
+       middleInitial: patientData?.patient?.middleInitial || "",
       lastName: patientData?.patient?.lastName || "",
       addressLine1: patientData?.patient?.addressLine1 || "",
+      apt: patientData?.patient?.apt || "",
       city: patientData?.patient?.city || "",
       state: patientData?.patient?.state || "",
       zipCode: patientData?.patient?.zipCode || "",
@@ -49,78 +51,43 @@ const NewPatientForm = ({ patientData }: PatientData) => {
       maritalStatus: patientData?.patient?.maritalStatus || "",
       phonePrimary: patientData?.patient?.phonePrimary || "",
       phoneAlternate: patientData?.patient?.phoneAlternate || "",
-
-      /* EMERGENCY */
-
-      contactName: patientData?.emergency?.contactName || "",
-      contactPhone: patientData?.emergency?.phone || "",
-      relationship: patientData?.emergency?.relationship || "",
-
-      /* PHARMACY */
-
+      contactName: patientData?.patient?.contactName || "",
+      contactPhone: patientData?.patient?.contactPhone || "",
+      primaryClinician: patientData?.patient?.primaryClinician || "",
+      otherProviders: patientData?.patient?.otherProviders || "",
       pharmacyName: patientData?.pharmacy?.pharmacyName || "",
       pharmacyLocation: patientData?.pharmacy?.location || "",
-      pharmacyPhone: patientData?.pharmacy?.phone || "",
-
-      /* DEMOGRAPHICS */
-
       language: patientData?.demographics?.language || "",
       race: patientData?.demographics?.race || "",
       ethnicity: patientData?.demographics?.ethnicity || "",
-
-      /* EMPLOYER */
-
       occupation: patientData?.employer?.occupation || "",
       employerName: patientData?.employer?.employerName || "",
       employerAddress: patientData?.employer?.employerAddress || "",
-
-      /* INSURANCE */
-
       payerName: patientData?.insurance?.payerName || "",
       planName: patientData?.insurance?.planName || "",
+      secondaryInsurance: patientData?.insurance?.secondaryInsurance || "",
+      selfPay: patientData?.insurance?.selfPay || false,
 
-      /* HIPAA */
+       emergencyContact:patientData?.emergency?.contactName || "",
+            emergencyphone:patientData?.emergency?.phone || "",
 
-      hipaaFamilyMember:
-        patientData?.hippa?.length > 0
-          ? patientData.hippa[0].familyMemberName
-          : "",
-
-      hipaaRelationship:
-        patientData?.hippa?.length > 0
-          ? patientData.hippa[0].relationship
-          : "",
-
-      primaryClinician: "",
-      otherProviders: "",
-      secondaryInsurance: "",
-      selfPay: false,
-
-      signature: "",
-      signatureDate: ""
-
-    });
-
-  }, [patientData]);
+    }
+  }));
+}, [patientData]);
 
   /* INPUT HANDLER */
+const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value, type, checked } = e.target;
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-
-    const { name, value, type, checked } = e.target;
-
-    setFormData((prev: any) => ({
-      ...prev,
+  setFormData((prev: any) => ({
+    ...prev,
+    newPatient: {
+      ...prev.newPatient,
       [name]: type === "checkbox" ? checked : value
-    }));
+    }
+  }));
+};
 
-  };
-
-  const handleSubmit = () => {
-
-    console.log("Updated Patient Data:", formData);
-
-  };
 
   return (
 
@@ -140,17 +107,17 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1 min-w-[200px]">
             <label>First Name</label>
-            <LineInput name="firstName" value={formData.firstName} onChange={handleInput}/>
+            <LineInput name="firstName" value={data.firstName} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 w-20">
             <label>M</label>
-            <LineInput name="middleInitial" value={formData.middleInitial} onChange={handleInput}/>
+            <LineInput name="middleInitial" value={data.middleInitial} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1 min-w-[200px]">
             <label>Last Name</label>
-            <LineInput name="lastName" value={formData.lastName} onChange={handleInput}/>
+            <LineInput name="lastName" value={data.lastName} onChange={handleInput}/>
           </div>
 
         </div>
@@ -161,12 +128,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Address</label>
-            <LineInput name="addressLine1" value={formData.addressLine1} onChange={handleInput}/>
+            <LineInput name="addressLine1" value={data.addressLine1} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 w-24">
             <label>Apt#</label>
-            <LineInput name="apt" value={formData.apt} onChange={handleInput}/>
+            <LineInput name="apt" value={data.apt} onChange={handleInput}/>
           </div>
 
         </div>
@@ -177,17 +144,17 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>City</label>
-            <LineInput name="city" value={formData.city} onChange={handleInput}/>
+            <LineInput name="city" value={data.city} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>State</label>
-            <LineInput name="state" value={formData.state} onChange={handleInput}/>
+            <LineInput name="state" value={data.state} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Zip Code</label>
-            <LineInput name="zipCode" value={formData.zipCode} onChange={handleInput}/>
+            <LineInput name="zipCode" value={data.zipCode} onChange={handleInput}/>
           </div>
 
         </div>
@@ -198,22 +165,22 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2">
             <label>SS#</label>
-            <LineInput name="ssN_Last4" value={formData.ssN_Last4} onChange={handleInput}/>
+            <LineInput name="ssN_Last4" value={data.ssN_Last4} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2">
             <label>Date of Birth</label>
-            <LineInput type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInput}/>
+            <LineInput type="date" name="dateOfBirth" value={data.dateOfBirth} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2">
             <label>Sex</label>
-            <LineInput name="sex" value={formData.sex} onChange={handleInput}/>
+            <LineInput name="sex" value={data.sex} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2">
             <label>Marital Status</label>
-            <LineInput name="maritalStatus" value={formData.maritalStatus} onChange={handleInput}/>
+            <LineInput name="maritalStatus" value={data.maritalStatus} onChange={handleInput}/>
           </div>
 
         </div>
@@ -224,12 +191,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Phone#</label>
-            <LineInput name="phonePrimary" value={formData.phonePrimary} onChange={handleInput}/>
+            <LineInput name="phonePrimary" value={data.phonePrimary} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Alternative Phone#</label>
-            <LineInput name="phoneAlternate" value={formData.phoneAlternate} onChange={handleInput}/>
+            <LineInput name="phoneAlternate" value={data.phoneAlternate} onChange={handleInput}/>
           </div>
 
         </div>
@@ -240,12 +207,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Emergency Contact</label>
-            <LineInput name="contactName" value={formData.contactName} onChange={handleInput}/>
+            <LineInput name="contactName" value={data.emergencyContact} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Phone#</label>
-            <LineInput name="contactPhone" value={formData.contactPhone} onChange={handleInput}/>
+            <LineInput name="contactPhone" value={data.emergencyphone} onChange={handleInput}/>
           </div>
 
         </div>
@@ -254,12 +221,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
         <div className="flex items-end gap-2 mb-4">
           <label>Please list your primary care clinician:</label>
-          <LineInput name="primaryClinician" value={formData.primaryClinician} onChange={handleInput}/>
+          <LineInput name="primaryClinician" value={data.primaryClinician} onChange={handleInput}/>
         </div>
 
         <div className="flex items-end gap-2 mb-4">
           <label>Please list any other providers involved in your care:</label>
-          <LineInput name="otherProviders" value={formData.otherProviders} onChange={handleInput}/>
+          <LineInput name="otherProviders" value={data.otherProviders} onChange={handleInput}/>
         </div>
 
         {/* PHARMACY */}
@@ -268,12 +235,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Pharmacy</label>
-            <LineInput name="pharmacyName" value={formData.pharmacyName} onChange={handleInput}/>
+            <LineInput name="pharmacyName" value={data.pharmacyName} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Location</label>
-            <LineInput name="pharmacyLocation" value={formData.pharmacyLocation} onChange={handleInput}/>
+            <LineInput name="pharmacyLocation" value={data.pharmacyLocation} onChange={handleInput}/>
           </div>
 
         </div>
@@ -288,17 +255,17 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Language</label>
-            <LineInput name="language" value={formData.language} onChange={handleInput}/>
+            <LineInput name="language" value={data.language} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Race</label>
-            <LineInput name="race" value={formData.race} onChange={handleInput}/>
+            <LineInput name="race" value={data.race} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Ethnicity</label>
-            <LineInput name="ethnicity" value={formData.ethnicity} onChange={handleInput}/>
+            <LineInput name="ethnicity" value={data.ethnicity} onChange={handleInput}/>
           </div>
 
         </div>
@@ -309,12 +276,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
         <div className="flex items-end gap-2 mb-4">
           <label>Occupation</label>
-          <LineInput name="occupation" value={formData.occupation} onChange={handleInput}/>
+          <LineInput name="occupation" value={data.occupation} onChange={handleInput}/>
         </div>
 
         <div className="flex items-end gap-2 mb-6">
           <label>Company Name & Address</label>
-          <LineInput name="employerAddress" value={formData.employerAddress} onChange={handleInput}/>
+          <LineInput name="employerAddress" value={data.employerAddress} onChange={handleInput}/>
         </div>
 
         {/* INSURANCE */}
@@ -325,12 +292,12 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 flex-1">
             <label>Primary Insurance</label>
-            <LineInput name="payerName" value={formData.payerName} onChange={handleInput}/>
+            <LineInput name="payerName" value={data.payerName} onChange={handleInput}/>
           </div>
 
           <div className="flex items-end gap-2 flex-1">
             <label>Secondary Insurance</label>
-            <LineInput name="secondaryInsurance" value={formData.secondaryInsurance} onChange={handleInput}/>
+            <LineInput name="secondaryInsurance" value={data.secondaryInsurance} onChange={handleInput}/>
           </div>
 
         </div>
@@ -341,7 +308,7 @@ const NewPatientForm = ({ patientData }: PatientData) => {
           <input
             type="checkbox"
             name="selfPay"
-            checked={formData.selfPay || false}
+            checked={data.selfPay || false}
             onChange={handleInput}
           />
           <label>Self Pay</label>
@@ -366,20 +333,10 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 
           <div className="flex items-end gap-2 w-48">
             <label>DATE</label>
-            <LineInput type="date" name="signatureDate" value={formData.signatureDate} onChange={handleInput}/>
+            <LineInput type="date" name="signatureDate" value={data.signatureDate} onChange={handleInput}/>
           </div>
 
         </div>
-
-        <div className="mt-8">
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-2 bg-black text-white rounded"
-          >
-            Submit
-          </button>
-        </div>
-
       </div>
 
     </FormContainer>
@@ -387,3 +344,7 @@ const NewPatientForm = ({ patientData }: PatientData) => {
 };
 
 export default NewPatientForm;
+
+
+
+

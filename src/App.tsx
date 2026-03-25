@@ -6,6 +6,7 @@ import PreviewPage from './components/Forms/PreviewPage'
 import Forms from './pages/Forms'
 import RenderForm from './components/Forms/RenderForm';
 import Main from './pages/Main';
+import FormSubmissionsTable from './pages/FormSubmission';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
       {/* <Route path='/test' element={<TestForm/>}/> */}
       <Route path='/forms' element={<Forms/>} />
       <Route path='/forms/:formIds' element={<RenderForm/>} />
+      <Route path='/submissions' element={<FormSubmissionsTable/>} />
     </Routes>
     </>
   )
