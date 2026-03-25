@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import formList from '../../data/formType.json'
+import { usePostDocumentVersionMutation } from "../../redux/api/DocumentSlice";
 
 type Props = {
     newFormModalOpen: boolean,
@@ -25,12 +26,15 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
 
     const [submitting, setSubmitting] = React.useState(false);
 
+    
+    const [postDocumentVersion , {isLoading , isError , isSuccess}] = usePostDocumentVersionMutation();
+
     const navigate = useNavigate();
 
     async function getPdfCategories() {
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/DocumentType`);
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}api/DocumentType`);
             const data = await response.json();
 
             if (response.ok) {
@@ -62,7 +66,7 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
             return;
         }
 
-        if (!fileType.trim()) {
+        if (!selectedFileType.trim()) {
             toast.error("File type is required.");
             return;
         }
@@ -71,20 +75,19 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
             setSubmitting(true);
 
             const payload = {
-                labelName,
-                category: selectedCategory,
-                fileType,
-                retiredDate
+                versionLabel: labelName,
+                documentTypeId: Number(selectedCategory),
+                templatePath: selectedFileType,
+                retiredDate: retiredDate ? new Date(retiredDate).toISOString() : null
             };
 
-            const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/Form/create`,
-                payload
-            );
+            console.log("Submitting form with payload:", payload);
 
-            navigate("/preview", {
-                state: payload
-            });
+            await postDocumentVersion(payload).unwrap();
+
+            toast.success("Form created successfully!");
+            setNewFormModalOpen(false);
+            navigate(0); // Refresh the page to show the new form
 
         } catch (err) {
             toast.error("Failed to create form.");
@@ -92,7 +95,9 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
         } finally {
             setSubmitting(false);
         }
-    };
+    };  
+
+    console.log("this is the categories" , categories);
 
     return (
         <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 flex flex-col gap-6">
@@ -121,7 +126,7 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
                     name="category"
                     title="Category"
                     list={categories.map((cat: any) => ({
-                        value: cat.code,
+                        value: cat.documentTypeId,
                         label: cat.name
                     }))}
                     selected={selectedCategory}
@@ -139,7 +144,7 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
                     }))}
                     selected={selectedFileType}
                     setSelect={(val) => setSelectedFileType(val)}
-                    disabled={loading || categories.length === 0}
+                    disabled={loading || formList.length === 0}
                 />
 
                 <Input
@@ -163,8 +168,8 @@ const NewFormModal = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
                 <IconButton
                     title="Create Form"
                     onClick={handleSubmit}
-                    loading={submitting}
-                    disabled={submitting}
+                    loading={isLoading}
+                    disabled={isLoading}
                     className="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2 rounded-lg shadow"
                 />
             </div>

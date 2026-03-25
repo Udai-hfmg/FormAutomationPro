@@ -5,10 +5,11 @@ import { TbReportAnalytics } from "react-icons/tb";
 import { FiRefreshCw } from "react-icons/fi";
 import { IoAdd } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
+import { CiHome } from "react-icons/ci";
 
 type Props = {
     newFormModalOpen: boolean,
-    setNewFormModalOpen: (open: boolean) => void
+    setNewFormModalOpen: (open: boolean) => void,
 }
 
 const Navbar = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
@@ -18,6 +19,7 @@ const Navbar = ({ newFormModalOpen, setNewFormModalOpen }: Props) => {
         <img src="https://cdn.prod.website-files.com/65943a67d00c014c2d920492/65943bb45991d7c7423aada3_logo.webp" alt="Horizon family group" className='w-60' />
       </div>
       <div className='flex flex-row gap-3'>
+        <IconButton title='Home' onClick={() =>{} } icon={<CiHome />} />
         <IconButton title='Request New form' onClick={() =>{} } icon={<VscNewFile />} />
         <IconButton title='Reports' onClick={() => alert('Login Clicked')} icon={<TbReportAnalytics />} />
         <IconButton onClick={() => alert('Login Clicked')} icon={<FiRefreshCw />} />

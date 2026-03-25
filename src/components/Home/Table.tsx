@@ -17,8 +17,6 @@ interface TableProps<T> {
     rowKey?: keyof T | RowKeyFn<T>;
     className?: string;
     style?: React.CSSProperties;
-
-    // ✅ NEW
     pageSize?: number;
 }
 
@@ -29,14 +27,11 @@ export default function Table<T extends Record<string, any>>({
     rowKey,
     className,
     style,
-    pageSize = 7, // default page size
+    pageSize = 7,
 }: TableProps<T>) {
     const cols = column ?? columns ?? [];
-
     const [currentPage, setCurrentPage] = useState(1);
-
     const totalPages = Math.ceil(data.length / pageSize);
-
     const paginatedData = data.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize
@@ -53,12 +48,16 @@ export default function Table<T extends Record<string, any>>({
         <div>
             <table
                 className={className}
-                style={{ width: "100%", borderCollapse: "collapse", ...style }}
+                style={{ width: "100%", borderCollapse: "collapse", ...style, tableLayout: "fixed" }}
             >
                 <thead style={{ background: "#f6f7f8" }}>
                     <tr>
                         {cols.map((col, ci) => (
-                            <th key={String(col.key) + ci} className="p-5 bg-[#c9e2fc]">
+                            <th 
+                                key={String(col.key) + ci} 
+                                className="p-5 bg-[#c9e2fc]"
+                                style={{ width: col.width, textAlign: col.align || "left" }}
+                            >
                                 {col.title ?? String(col.key)}
                             </th>
                         ))}
@@ -82,6 +81,7 @@ export default function Table<T extends Record<string, any>>({
                                     <td
                                         key={String(col.key) + ci}
                                         className="p-5 px-8 border-t border-gray-300"
+                                        style={{ width: col.width, textAlign: col.align || "left" }}
                                     >
                                         {content}
                                     </td>
@@ -92,7 +92,6 @@ export default function Table<T extends Record<string, any>>({
                 </tbody>
             </table>
 
-            {/* ✅ Pagination Controls */}
             <div className="flex justify-between items-center mt-4 px-2">
                 <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
