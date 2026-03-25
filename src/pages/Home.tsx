@@ -147,10 +147,8 @@ const Home = () => {
 
             {/* New Form Modal */}
             <Modal isOpen={newFormModalOpen} onClose={() => setNewFormModalOpen(false)}>
-                <NewFormModal
-                    newFormModalOpen={newFormModalOpen}
-                    setNewFormModalOpen={setNewFormModalOpen}
-                />
+                <NewFormModal newFormModalOpen={newFormModalOpen} setNewFormModalOpen={setNewFormModalOpen} />
+               
             </Modal>
 
             <Navbar

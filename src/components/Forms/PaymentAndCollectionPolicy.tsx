@@ -1,9 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
 import LineInput from "../Input/FormInput";
+import type { PatientData } from "../Input/PatientData";
+import SignatureField from "../Input/SignatureField";
 
-const PaymentAndCollectionPolicy = () => {
+const PaymentAndCollectionPolicy = ({ patientData }: PatientData) => {
+
+  const [PaymentAndCollectionPolicyPatientName, setPaymentAndCollectionPolicyPatientName] = useState("");
+  const [PaymentAndCollectionPolicyDate, setPaymentAndCollectionPolicyDate] = useState("");
+  const [PaymentAndCollectionPolicySignature, setPaymentAndCollectionPolicySignature] = useState("");
+
+  useEffect(() => {
+
+    console.log("Payment And Collection Policy Data:", patientData);
+
+    if (patientData) {
+
+     setPaymentAndCollectionPolicyPatientName(
+  `${patientData.patient?.firstName || ""} ${patientData.patient?.lastName || ""}`.trim()
+);
+
+      setPaymentAndCollectionPolicyDate(
+        patientData.PaymentAndCollectionPolicyDate
+          ? new Date(patientData.PaymentAndCollectionPolicyDate)
+              .toISOString()
+              .split("T")[0]
+          : ""
+      );
+
+      setPaymentAndCollectionPolicySignature(
+        patientData.PaymentAndCollectionPolicySignature || ""
+      );
+    }
+
+  }, [patientData]);
+
   return (
     <FormContainer>
       <HeaderImage />
@@ -53,29 +85,58 @@ const PaymentAndCollectionPolicy = () => {
           payment policy.
         </p>
 
-        {/* Signature Section */}
+        {/* Name + Date */}
         <div className="flex flex-col sm:flex-row sm:items-end gap-6 mt-8">
 
           <div className="flex items-end gap-2 w-full">
             <label className="whitespace-nowrap">
               Name of Patient
             </label>
-            <LineInput className="flex-1" />
+
+            <LineInput
+              className="flex-1"
+              value={PaymentAndCollectionPolicyPatientName}
+              onChange={(e) =>
+                setPaymentAndCollectionPolicyPatientName(e.target.value)
+              }
+            />
+
           </div>
 
           <div className="flex items-end gap-2 w-full sm:w-60">
             <label>Date</label>
-            <LineInput type="date" className="flex-1" />
+
+            <LineInput
+              type="date"
+              className="flex-1"
+              value={PaymentAndCollectionPolicyDate}
+              onChange={(e) =>
+                setPaymentAndCollectionPolicyDate(e.target.value)
+              }
+            />
+
           </div>
 
         </div>
 
-        {/* Signature Line */}
+        {/* Signature */}
         <div className="mt-8">
+
           <label>
             Signature of Patient or Patient's Legal Representative
           </label>
-          <LineInput className="w-full mt-2" />
+
+          <SignatureField
+            className="flex-1"
+            value={PaymentAndCollectionPolicySignature}
+            onChange={(dataUrl) => {
+             (prev: any) => ({
+                ...prev,
+                PaymentAndCollectionPolicySignature: dataUrl
+              })  
+            }}
+          />
+
         </div>
 
       </div>

@@ -1,24 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
 import LineInput from "../Input/FormInput";
+import type { PatientData } from "../Input/PatientData";
+import SignatureField from "../Input/SignatureField";
 
-const HPVScreening = () => {
+const HPVScreening = ({ patientData }: PatientData) => {
+
+  // unique states for this form
+  const [HPVScreeningDate, setHPVScreeningDate] = useState("");
+  const [HPVScreeningName, setHPVScreeningName] = useState("");
+  const [HPVScreeningSignature, setHPVScreeningSignature] = useState("");
+
+  // log backend data
+ useEffect(() => {
+  console.log("HPV Screening Form Data From Backend:", patientData);
+
+  if (patientData) {
+    setHPVScreeningDate(
+      patientData.HPVScreeningDate
+        ? new Date(patientData.HPVScreeningDate).toISOString().split("T")[0]
+        : ""
+    );
+
+    setHPVScreeningName(patientData.HPVScreeningName || "");
+
+    setHPVScreeningSignature(patientData.HPVScreeningSignature || "");
+  }
+}, [patientData]);
 
   function HeaderTitles() {
-    return <>
-
+    return (
+      <>
         <div className="font-bold">Women's Health Division</div>
         <div>30 Hatfield Lane, Suite 105</div>
         <div>Goshen, NY 10924</div>
-    </>
-}
+      </>
+    );
+  }
+
   return (
     <FormContainer>
-   
-        <HeaderImage headerContent={<HeaderTitles/>} />
-    
-  
+      <HeaderImage headerContent={<HeaderTitles />} />
 
       <div className="max-w-4xl mx-auto px-6 sm:px-10 pb-6 sm:pb-10 text-xs sm:text-sm text-black bg-white">
 
@@ -65,19 +88,45 @@ const HPVScreening = () => {
         {/* Date / Name / Signature */}
         <div className="space-y-4 mt-4">
 
+          {/* Date */}
           <div className="flex items-end gap-2 w-full sm:w-72">
             <label className="whitespace-nowrap">Date:</label>
-            <LineInput type="date" className="flex-1" />
+            <LineInput
+              type="date"
+              className="flex-1"
+              value={HPVScreeningDate}
+              onChange={(e) => setHPVScreeningDate(e.target.value)}
+            />
           </div>
 
+          {/* Name */}
           <div className="flex items-end gap-2 w-full sm:w-96">
             <label className="whitespace-nowrap">Name:</label>
-            <LineInput className="flex-1" />
+            <LineInput
+              className="flex-1"
+              value={HPVScreeningName}
+              onChange={(e) => setHPVScreeningName(e.target.value)}
+            />
           </div>
 
+          {/* Signature */}
           <div className="flex items-end gap-2 w-full sm:w-96">
             <label className="whitespace-nowrap">Signature:</label>
-            <LineInput className="flex-1" />
+
+            <SignatureField
+              className="flex-1"
+              value={HPVScreeningSignature}
+               onChange={(dataUrl) =>
+                setHPVScreeningSignature((prev: any) => ({
+                  ...prev,
+                  signature: dataUrl,
+                }))
+
+
+              }
+              
+
+            />
           </div>
 
         </div>

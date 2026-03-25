@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import HeaderImage from '../UI/HeaderImage'
 import FormContainer from '../UI/FormContainer'
+import type { PatientDataProps } from '../Input/PatientData'
 
 function HeaderTitles() {
     return <>
@@ -12,7 +13,23 @@ function HeaderTitles() {
     </>
 }
 
-const Form1 = () => {
+
+const Form1 = ({setPatientData}:PatientDataProps) => {
+const [email,setEmail]=useState('')
+
+    const getDetails=async()=>{
+        try{
+            if(email.trim()!=''){
+            const response=await fetch(`https://localhost:7057/api/Patient/${email}`)
+            const data=await response.json()
+            // console.log(data)
+            setPatientData(data)
+            }
+        }
+        catch(e){
+            console.error("Error fetching patient data:", e);
+        }
+    }
     return (
         <FormContainer>
             <HeaderImage headerContent={<HeaderTitles />} />
@@ -46,7 +63,12 @@ const Form1 = () => {
 
                 <div className="mt-16 flex items-center">
                     <span className="mr-3">EMAIL ADDRESS:</span>
-                    <input type="email" className="flex-1 border-b border-black outline-none" placeholder="your.email@example.com" />
+                    <input type="email" className="flex-1 border-b border-black outline-none" 
+                    placeholder="your.email@example.com" 
+                    value={email}
+                     onChange={(e) => setEmail(e.target.value)}
+                        onBlur={getDetails}
+                      />
                 </div>
             </div>
         </FormContainer>
