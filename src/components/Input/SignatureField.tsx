@@ -4,6 +4,7 @@ import type SignatureCanvasType from "react-signature-canvas";
 
 interface SignatureFieldProps {
   className?: string;
+  // FIX: accepts string | null so both "signed" and "cleared" states work
   onChange?: (dataUrl: string | null) => void;
   name?: string;
   value?: string | null;
@@ -13,48 +14,33 @@ const SignatureField = ({ className = "", onChange, name, value }: SignatureFiel
   const sigCanvasRef = useRef<SignatureCanvasType>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isEmpty, setIsEmpty] = useState<boolean>(true);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-useEffect(() => {
-  const canvas = canvasRef.current;
-  if (!canvas) return;
+  // FIX: Removed the dead `canvasRef` useEffect — it was never attached to any element
 
-  const rect = canvas.getBoundingClientRect();
+  // Resize canvas on mount and window resize to keep drawing crisp
+  useEffect(() => {
+    const resizeCanvas = () => {
+      const canvas = sigCanvasRef.current?.getCanvas();
+      if (!canvas) return;
 
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
 
-}, []);
+      const ctx = canvas.getContext("2d");
+      ctx?.scale(ratio, ratio);
+    };
 
-useEffect(() => {
-  const resizeCanvas = () => {
-    const canvas = sigCanvasRef.current?.getCanvas();
-    if (!canvas) return;
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
 
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-
-    const ctx = canvas.getContext("2d");
-    ctx?.scale(ratio, ratio);
-  };
-
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
-
-  return () => window.removeEventListener("resize", resizeCanvas);
-}, []);
-
-  // Walk up the DOM and remove any overflow clipping from ancestors
+  // Remove overflow clipping from all ancestor elements so canvas isn't clipped
   useEffect(() => {
     let el = wrapperRef.current?.parentElement;
     while (el && el !== document.body) {
       const style = window.getComputedStyle(el);
-
-
-
-
       if (style.overflow !== "visible") {
         el.style.overflow = "visible";
       }
@@ -62,36 +48,30 @@ useEffect(() => {
     }
   }, []);
 
+  // If a saved value comes in from DB, draw it onto the canvas
+  useEffect(() => {
+    if (!value || !sigCanvasRef.current) return;
+    sigCanvasRef.current.fromDataURL(value);
+    setIsEmpty(false);
+  }, [value]);
+
   const handleBegin = (): void => {
     setIsEmpty(false);
-    onChange?.(null);
+    onChange?.(null); // signal "in progress"
   };
 
   const handleEnd = (): void => {
-      if (!sigCanvasRef.current) return;
-  const dataUrl = sigCanvasRef.current
-    .getSignaturePad()
-    .toDataURL("image/png");
-  
-  // Log the base64 string
-  console.log("Signature base64:", dataUrl);
-
-  // Preview the image in console (click the link in browser console)
-
-  console.log("Signature preview:");
-  console.log("%c ", `
-    padding: 100px 200px;
-    background: url(${dataUrl}) no-repeat center center;
-    background-size: contain;
-  `);
-
-  onChange?.(dataUrl);
+    if (!sigCanvasRef.current) return;
+    const dataUrl = sigCanvasRef.current
+      .getSignaturePad()
+      .toDataURL("image/png");
+    onChange?.(dataUrl); // FIX: always string here, never null
   };
 
   const handleClear = (): void => {
     sigCanvasRef.current?.clear();
     setIsEmpty(true);
-    onChange?.(null);
+    onChange?.(null); // FIX: null on clear — HIPAANotice must accept string | null
   };
 
   return (
@@ -100,7 +80,6 @@ useEffect(() => {
       className={`relative flex flex-col ${className}`}
       style={{ zIndex: 9999, isolation: "isolate" }}
     >
-      {/* Underline border — same visual as LineInput */}
       <div className="relative border-b border-black" style={{ overflow: "visible" }}>
 
         {/* Clear button */}
@@ -115,14 +94,14 @@ useEffect(() => {
           </button>
         )}
 
-        {/* Placeholder text */}
+        {/* Placeholder */}
         {isEmpty && (
           <span className="absolute inset-0 flex items-center text-gray-300 text-[10px] italic pointer-events-none pl-1">
             Sign here
           </span>
         )}
 
-        {/* Canvas container — overflows visually above siblings */}
+        {/* Canvas */}
         <div style={{ position: "relative", height: "148px", overflow: "visible", zIndex: 9999 }}>
           <SignatureCanvas
             ref={sigCanvasRef}
@@ -142,7 +121,7 @@ useEffect(() => {
                 top: 0,
                 left: 0,
                 zIndex: 9999,
-                touchAction: "none", // prevents scroll hijack on mobile
+                touchAction: "none",
               },
             }}
           />
