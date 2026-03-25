@@ -5,30 +5,13 @@ import LineInput from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 
-const HPVScreening = ({ patientData }: PatientData) => {
+const HPVScreening = ({ patientData,formData,setFormData }: PatientData) => {
 
-  // unique states for this form
-  const [HPVScreeningDate, setHPVScreeningDate] = useState("");
-  const [HPVScreeningName, setHPVScreeningName] = useState("");
-  const [HPVScreeningSignature, setHPVScreeningSignature] = useState("");
+const patient = patientData?.patient || {}
 
-  // log backend data
- useEffect(() => {
-  console.log("HPV Screening Form Data From Backend:", patientData);
-
-  if (patientData) {
-    setHPVScreeningDate(
-      patientData.HPVScreeningDate
-        ? new Date(patientData.HPVScreeningDate).toISOString().split("T")[0]
-        : ""
-    );
-
-    setHPVScreeningName(patientData.HPVScreeningName || "");
-
-    setHPVScreeningSignature(patientData.HPVScreeningSignature || "");
-  }
-}, [patientData]);
-
+  const handleNameChange = (value: string) => {
+    setFormData((prev: any) => ({ ...prev, name: value }));
+  };
   function HeaderTitles() {
     return (
       <>
@@ -94,8 +77,8 @@ const HPVScreening = ({ patientData }: PatientData) => {
             <LineInput
               type="date"
               className="flex-1"
-              value={HPVScreeningDate}
-              onChange={(e) => setHPVScreeningDate(e.target.value)}
+              // value={HPVScreeningDate}
+              // onChange={(e) => setHPVScreeningDate(e.target.value)}
             />
           </div>
 
@@ -104,8 +87,10 @@ const HPVScreening = ({ patientData }: PatientData) => {
             <label className="whitespace-nowrap">Name:</label>
             <LineInput
               className="flex-1"
-              value={HPVScreeningName}
-              onChange={(e) => setHPVScreeningName(e.target.value)}
+              value={patient ? `${patient.firstName || ""} ${patient.lastName || "" }` : ""}
+               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                              handleNameChange(e.target.value)
+                            }
             />
           </div>
 
@@ -115,9 +100,8 @@ const HPVScreening = ({ patientData }: PatientData) => {
 
             <SignatureField
               className="flex-1"
-              value={HPVScreeningSignature}
-               onChange={(dataUrl) =>
-                setHPVScreeningSignature((prev: any) => ({
+               onChange={(dataUrl:string | null) =>
+               setFormData((prev: any) => ({
                   ...prev,
                   signature: dataUrl,
                 }))
