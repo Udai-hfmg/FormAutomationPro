@@ -9,8 +9,15 @@ export const documentApi = createApi({
     endpoints:(builder)=>({
         getDocuments:builder.query({
             query:()=>"api/DocumentTypeVersion"
+        }) , 
+        postDocumentVersion:builder.mutation({
+            query:(data)=>({
+                url:"api/DocumentTypeVersion",
+                method:"POST",
+                body:data
+            })
         })
     })
 })
 
-export const {useGetDocumentsQuery}  = documentApi
+export const {useGetDocumentsQuery, usePostDocumentVersionMutation}  = documentApi
