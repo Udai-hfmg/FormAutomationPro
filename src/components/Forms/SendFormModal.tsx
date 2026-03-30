@@ -1,5 +1,6 @@
-import React from "react";
+import React, { use } from "react";
 import { IoCopyOutline } from "react-icons/io5";
+import useFormData from "../../hooks/useFormData";
 
 interface SendFormModalProps {
   isOpen: boolean;
@@ -15,6 +16,9 @@ const SendFormModal: React.FC<SendFormModalProps> = ({
   const [patientName, setPatientName] = React.useState("");
   const [dob, setDob] = React.useState("");
   const [facilityId, setFacilityId] = React.useState("");
+  const {formData}=useFormData()
+
+  const phoneNumber=formData?.newPatient?.phonePrimary || formData?.newPatient?.phoneAlternate || ""
 
   const formLink = `${window.location.origin}/forms/${templatePath}`;
 

@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, Mail, Phone, Send, CheckCircle, FileText, Building2 } from 'lucide-react'
 import {type  Form } from './FormCard'
 import {type Facility } from './FaciliyFolder'
+import useFormData from '../../hooks/useFormData'
+
+const BASR_URL = import.meta.env.VITE_BASE_URL
 
 interface SendFormModalProps {
   isOpen: boolean
@@ -18,10 +21,22 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
   const [phone, setPhone] = useState('')
   const [sendVia, setSendVia] = useState<'email' | 'sms'>('email')
 
+    const {formData}=useFormData()
+  
+    const patientId=formData?.patientDemographic?.patientId
+    const phoneNumber=formData?.newPatient?.phonePrimary || formData?.newPatient?.phoneAlternate || ""
+
+    const formLink = `${window.location.origin}/forms?patientId=${patientName}`;
+
   const canSend = (sendVia === 'email' ? email : phone)
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!canSend) return
+   const  response=await fetch(`${BASR_URL}api/Admin/twilio-send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone,formLink})})
     setStep('success')
   }
 
@@ -99,7 +114,7 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                         <p className="text-xs font-semibold text-gray-700 truncate">{form?.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Building2 size={11} className="text-gray-400" />
-                          <p className="text-xs text-gray-400 truncate">{facility?.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{facility?.officeName}</p>
                         </div>
                       </div>
                     </div>
