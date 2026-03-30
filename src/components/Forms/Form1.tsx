@@ -165,6 +165,7 @@ import FormContainer from '../UI/FormContainer'
 import type { PatientDataProps } from '../Input/PatientData'
 import {useSearchParams} from 'react-router'
 
+
 function HeaderTitles() {
     return <>
 
@@ -174,97 +175,16 @@ function HeaderTitles() {
         <div>845-291-7400 x 2</div>
     </>
 }
+import useFormData from '../../hooks/useFormData'
 
 
-const Form1 = ({setPatientData}:any) => {
-const [email,setEmail]=useState('')
+const Form1 = () => {
+
 const [facility, setFacility] = useState(null)
-      const getDetails = async () => {
-    try {
-      if (email.trim() !== "") {
-        const response = await fetch(`https://localhost:7057/api/Patient/${email}`)
-        const data = await response.json()
-
-        console.log('original data',data);
-        
-        // ✅ store raw backend data
-        setPatientData(data)
-
-        // ✅ VERY IMPORTANT → fill ALL FORMS DATA
-        setFormData({
-          newPatient: {
-            firstName: data?.patient?.firstName || "",
-            middleInitial: data?.patient?.middleInitial || "",
-            lastName: data?.patient?.lastName || "",
-            addressLine1: data?.patient?.addressLine1 || "",
-            city: data?.patient?.city || "",
-            state: data?.patient?.state || "",
-            zipCode: data?.patient?.zipCode || "",
-            ssN_Last4: data?.patient?.ssN_Last4 || "",
-            dateOfBirth: data?.patient?.dateOfBirth?.split("T")[0] || "",
-            sex: data?.patient?.sex || "",
-            maritalStatus: data?.patient?.maritalStatus || "",
-            phonePrimary: data?.patient?.phonePrimary || "",
-            phoneAlternate: data?.patient?.phoneAlternate || "",
-
-            contactName: data?.emergency?.contactName || "",
-            contactPhone: data?.emergency?.phone || "",
-            relationship: data?.emergency?.relationship || "",
-
-            pharmacyName: data?.pharmacy?.pharmacyName || "",
-            pharmacyLocation: data?.pharmacy?.location || "",
-            pharmacyPhone: data?.pharmacy?.phone || "",
-
-            language: data?.demographics?.language || "",
-            race: data?.demographics?.race || "",
-            ethnicity: data?.demographics?.ethnicity || "",
-
-            occupation: data?.employer?.occupation || "",
-            employerName: data?.employer?.employerName || "",
-            employerAddress: data?.employer?.employerAddress || "",
-
-            payerName: data?.insurance?.payerName || "",
-            planName: data?.insurance?.planName || "",
-
-            emergencyContact:data?.emergency?.contactName || "",
-            emergencyphone:data?.emergency?.phone || "",
-
-            hipaaFamilyMember:
-              data?.hippa?.length > 0 ? data.hippa[0].familyMemberName : "",
-            hipaaRelationship:
-              data?.hippa?.length > 0 ? data.hippa[0].relationship : "",
-
-            primaryClinician: "",
-            otherProviders: "",
-            secondaryInsurance: "",
-            selfPay: false,
-
-            signature: "",
-            signatureDate: ""
-          },
-
-          hipaa: 
-            data?.hippa || []
-,
-
-          hpv: {
-            // map hpv fields if available
-          },
-
-          insurance: {
-            ...data?.insurance
-          },
-
-          paymentAgreement: {},
-
-          paymentPolicy: {},
-
-          privacy: {}
-        })
-      }
-    } catch (e) {
-      console.error("Error fetching patient data:", e)
-    }}
+    
+   const {formData , setFormData , handleInput} = useFormData()
+ 
+   
     return (
         <FormContainer>
             <HeaderImage headerContent={<HeaderTitles />} />
@@ -299,9 +219,10 @@ const [facility, setFacility] = useState(null)
                 <div className="mt-16 flex items-center">
                     <span className="mr-3">EMAIL ADDRESS:</span>
                     <input type="email" className="flex-1 border-b border-black outline-none" 
+                    name="email"
                     placeholder="your.email@example.com" 
-                    value={email}
-                     onChange={(e) => setEmail(e.target.value)}
+                    value={formData?.newPatient?.email || ""}
+                     onChange={handleInput}
                         
                       />
                 </div>

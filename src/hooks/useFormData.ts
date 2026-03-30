@@ -5,29 +5,30 @@ import type { InsurancePlanDto } from "../DTOs/insurance_plan"
 import type { EmergencyContactDto } from "../DTOs/emegrency"
 import type { PatientPharmacyDto } from "../DTOs/patientPharmacy"
 import { usePostPatientInfoMutation } from "../redux/api/PatienSlice"
+import { create } from "framer-motion/m"
 
 
 //interface that merge all DTos into one big DTO that has all possible fields that any form might need. This will be sent to the backend on final submit
 export interface FinalFormData {
-  newPatient: PatientDto,
-  patientDemographic: PatientDemographicDto , 
-  patientEmployment: any
-  hipaa: HipaaFamilyMemberDto
-  hpv: any
-  insurance: InsurancePlanDto
-  paymentAgreement: any
-  paymentPolicy: any
-  privacy: any , 
-  emergencyContact: EmergencyContactDto,
-  patientPharmacy: PatientPharmacyDto
-  
+    newPatient: PatientDto,
+    patientDemographic: PatientDemographicDto,
+    patientEmployment: any
+    hipaa: HipaaFamilyMemberDto[]
+    hpv: any
+    insurance: InsurancePlanDto
+    paymentAgreement: any
+    paymentPolicy: any
+    privacy: any,
+    emergencyContact: EmergencyContactDto,
+    patientPharmacy: PatientPharmacyDto
+
 }
 
 const buildMap = (formData: FinalFormData): Record<string, keyof FinalFormData> => {
     const map: Record<string, keyof FinalFormData> = {}
     for (const key in formData) {
         if (formData.hasOwnProperty(key)) {
-            for(const field in formData[key as keyof FinalFormData]) {
+            for (const field in formData[key as keyof FinalFormData]) {
                 map[field] = key as keyof FinalFormData
             }
         }
@@ -35,63 +36,72 @@ const buildMap = (formData: FinalFormData): Record<string, keyof FinalFormData> 
     return map
 }
 
-const useFormData = ()=>{
+const useFormData = () => {
 
     //state to hold form data
     const [formData, setFormData] = useState<FinalFormData | null>(
-    {
-        newPatient: {
-            firstName: "",
-            middleInitial: "",
-            lastName: "",
-            addressLine1: "",
-            city: "",
-            state: "",
-            zipCode: "",
-            ssnLast4: "",
-            dateOfBirth: "",
-        },
-        patientDemographic: {
-            patientId: 0,
-            ethnicity: "",
-            language: "",
-            race: "",
-            updatedAt: "",
-        },
-        patientEmployment: {},
-        hipaa: {
-            familyMemberName: "",
-            relationship: "",
-            hipaaFamilyMemberId: 0,
-            signedDocumentId: 0,
-        },
-        hpv: {},
-        insurance: {
-            insurancePlanId: 0,
-            payerName: "",
-            planName: "",
-            notes: "",
-        },
-        paymentAgreement: {},
-        paymentPolicy: {},
-        privacy: {},
-        emergencyContact: {
-            contactName: "",
-            relationship: "",
-            phone: "",
-            isPrimary: 0,
-            patientId: 0,
-            emergencyContactId: 0,
-        },
-        patientPharmacy: {
-            pharmacyName: "",
-            location: "",
-            phone: "",
-            isPreferred: true,
-            patientId: 0,
-            patientPharmacyId: 0,
-        },
-    })
+        {
+            newPatient: {
+                firstName: "",
+                middleInitial: "",
+                lastName: "",
+                addressLine1: "",
+                addressLine2: "",
+                city: "",
+                state: "",
+                zipCode: "",
+                phonePrimary: "",
+                phoneAlternate: "",
+                email: "",
+                dateOfBirth: "",
+                sex: "",
+                maritalStatus: "",
+                ssnLast4: "",
+                createdAt: "",
+                updatedAt: "",
+                date:''
+            },
+            patientDemographic: {
+                patientId: 0,
+                ethnicity: "",
+                language: "",
+                race: "",
+                updatedAt: "",
+            },
+            patientEmployment: {},
+            hipaa:[ {
+                familyMemberName: "",
+                relationship: "",
+                hipaaFamilyMemberId: 0,
+                signedDocumentId: 0,
+            }],
+            hpv: {},
+            insurance: {
+                insurancePlanId: 0,
+                payerName: "",
+                planName: "",
+                notes: "",
+            },
+            paymentAgreement: {},
+            paymentPolicy: {},
+            privacy: {},
+            emergencyContact: {
+                contactName: "",
+                relationship: "",
+                phone: "",
+                isPrimary: 0,
+                patientId: 0,
+                emergencyContactId: 0,
+            },
+            patientPharmacy: {
+                pharmacyName: "",
+                location: "",
+                phone: "",
+                isPreferred: true,
+                patientId: 0,
+                patientPharmacyId: 0,
+            },
+        })
 
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
@@ -102,12 +112,13 @@ const useFormData = ()=>{
     const fetchFormData = async (patientId: string) => {
         try {
             setIsLoading(true)
-            const response = await fetch(`https://localhost:7057/api/Patient/${patientId}`)
+            const response = await fetch(`http://localhost:5238/api/Patient/${patientId}`)
             if (!response.ok) {
                 throw new Error("Failed to fetch patient data")
             }
             const data = await response.json()
             //populate formData state with data from backend
+            console.log('original data', data);
             setFormData({
                 newPatient: {
                     firstName: data?.patient?.firstName || "",
@@ -119,6 +130,15 @@ const useFormData = ()=>{
                     zipCode: data?.patient?.zipCode || "",
                     ssnLast4: data?.patient?.ssN_Last4 || "",
                     dateOfBirth: data?.patient?.dateOfBirth?.split("T")[0] || "",
+                    maritalStatus: data?.patient?.maritalStatus || "",
+                    phonePrimary: data?.patient?.phonePrimary || "",
+                    phoneAlternate: data?.patient?.phoneAlternate || "",
+                    email: data?.patient?.email || "",
+                    addressLine2: data?.patient?.addressLine2 || "",
+                    createdAt: data?.patient?.createdAt || "",
+                    updatedAt: data?.patient?.updatedAt || "",
+                    sex: data?.patient?.sex || "",
+
                 },
                 patientDemographic: {
                     // Initialize with default values or values from data
@@ -129,24 +149,26 @@ const useFormData = ()=>{
                     updatedAt: data?.demographics?.updatedAt || "",
                 },
                 patientEmployment: {
-                    // Initialize with default values or values from data
+                    employerAddress: data?.employer?.employerAddress || "",
+                    employerName: data?.employer?.employerName || "",
+                    occupation: data?.employer?.occupation || "",
+                    createdAt: data?.employer?.createdAt || "",
 
                 },
-                hipaa: {
-                    familyMemberName: data?.hipaa?.familyMemberName || "",
-                    relationship: data?.hipaa?.relationship || "",
-                    hipaaFamilyMemberId: data?.hipaa?.hipaaFamilyMemberId || "",
-                    signedDocumentId: data?.hipaa?.signedDocumentId || "",
-                    // Initialize with default values or values from data
-                },
+                hipaa: data?.hippa.map((item: any) => ({
+                    familyMemberName: item.familyMemberName || "",
+                    relationship: item.relationship || "",
+                    hipaaFamilyMemberId: item.hipaaFamilyMemberId || 0,
+                    signedDocumentId: item.signedDocumentId || 0,
+                })) || [],
                 hpv: {
                     // Initialize with default values or values from data
                 },
                 insurance: {
-                    insurancePlanId: data?.insurance?.insurancePlanId || "",
-                    payerName: data?.insurance?.payerName || "",
-                    planName: data?.insurance?.planName || "",
-                    notes: data?.insurance?.notes || "",
+                    insurancePlanId: data?.patientInsurance?.insurancePlanId || "",
+                    payerName: data?.patientInsurance?.payerName || "",
+                    planName: data?.patientInsurance?.planName || "",
+                    notes: data?.patientInsurance?.notes || "",
                     // Initialize with default values or values from data
                 },
                 paymentAgreement: {
@@ -157,16 +179,16 @@ const useFormData = ()=>{
                 },
                 privacy: {
                     // Initialize with default values or values from data
-                } , 
-                emergencyContact:{
+                },
+                emergencyContact: {
                     contactName: data?.emergency?.contactName || "",
                     relationship: data?.emergency?.relationship || "",
                     phone: data?.emergency?.phone || "",
                     isPrimary: data?.emergency?.isPrimary || 0,
                     patientId: data?.emergency?.patientId || 0,
                     emergencyContactId: data?.emergency?.emergencyContactId || 0,
-                } , 
-                patientPharmacy:{
+                },
+                patientPharmacy: {
                     pharmacyName: data?.pharmacy?.pharmacyName || "",
                     location: data?.pharmacy?.location || "",
                     phone: data?.pharmacy?.phone || "",
@@ -183,11 +205,11 @@ const useFormData = ()=>{
     }
 
     const sectionMap = useMemo(() => {
-    return formData ? buildMap(formData) : {}
-}, [formData])
+        return formData ? buildMap(formData) : {}
+    }, [formData])
 
     //use effect to fetch data on mount
-    useEffect(()=>{
+    useEffect(() => {
         const patientId = new URLSearchParams(window.location.search).get("patientId")
         console.log("Patient ID from URL in useEffect:", patientId)
         if (patientId) {
@@ -195,28 +217,41 @@ const useFormData = ()=>{
         } else {
             setIsLoading(false)
         }
-    },[])
+    }, [])
 
     // Add this function inside useFormData(), after fetchFormData
 
-const submitFormData = async () => {
-    if (!formData) {
-        setError(new Error("No form data to submit"))
-        return
+    const submitFormData = async () => {
+        if (!formData) {
+            setError(new Error("No form data to submit"))
+            return
+        }
+        try {
+            setIsLoading(true)
+            await postPatienForm(formData).unwrap()
+        } catch (err) {
+            setError(err as Error)
+        } finally {
+            setIsLoading(false)
+        }
     }
-    try {
-        setIsLoading(true)
-        await postPatienForm(formData).unwrap()
-    } catch (err) {
-        setError(err as Error)
-    } finally {
-        setIsLoading(false)
-    }
-}
 
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+         const { name, value, type, checked } = e.target;
+       
+       
+         setFormData((prev: any) => ({
+           ...prev,
+           [sectionMap[name]]: {
+             ...prev[sectionMap[name]],
+             [name]: type === "checkbox" ? checked : value
+           }
+         }));
+       };
     
 
-    return {formData, setFormData, isLoading, setIsLoading, error, setError , sectionMap , submitFormData}
+
+    return { formData, setFormData, isLoading, setIsLoading, error, setError, sectionMap, submitFormData , handleInput}
 }
 
 

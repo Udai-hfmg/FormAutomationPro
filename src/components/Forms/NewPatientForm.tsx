@@ -23,23 +23,12 @@ const LineInput = ({ className = "", type, name, value, onChange }: LineInputPro
   />
 );
 
-const NewPatientForm = ({ formData,setFormData }: PatientData) => {
+const NewPatientForm = () => {
 
 
-const { sectionMap } = useFormData() // Get the sectionMap from the useFormData hook
+const { sectionMap,formData,handleInput } = useFormData() // Get the sectionMap from the useFormData hook
   
-const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value, type, checked } = e.target;
 
-  console.log("sectionMap:", sectionMap);
-  setFormData((prev: any) => ({
-    ...prev,
-    [sectionMap[name]]: {
-      ...prev[sectionMap[name]],
-      [name]: type === "checkbox" ? checked : value
-    }
-  }));
-};
 
 console.log('formData in NewPatientForm', formData)
 
@@ -274,7 +263,7 @@ console.log('formData in NewPatientForm', formData)
 
           <div className="flex items-end gap-2 flex-1">
             <label>SIGNATURE</label>
-            <SignatureField
+            {/* <SignatureField
               className="flex-1"
               onChange={(dataUrl)=>
                 setFormData((prev:any)=>({
@@ -282,7 +271,7 @@ console.log('formData in NewPatientForm', formData)
                   signature:dataUrl
                 }))
               }
-            />
+            /> */}
           </div>
 
           <div className="flex items-end gap-2 w-48">

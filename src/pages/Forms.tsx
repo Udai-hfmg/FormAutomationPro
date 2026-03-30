@@ -153,16 +153,16 @@ const Forms = () => {
     <div>
 
       {/* EMAIL FETCH */}
-      {/* <Form1 setPatientData={formData} setFormData={setFormData}/> */}
+      <Form1 setPatientData={formData} setFormData={setFormData}/>
 
       {/* ALL FORMS */}
       <NewPatientForm patientData={formData} formData={formData} setFormData={setFormData}/>
-      {/* <HIPAANotice patientData={formData} formData={formData} setFormData={setFormData}/> 
+      <HIPAANotice /> 
       <HPVScreening patientData={formData} formData={formData} setFormData={setFormData}/>
       <YourInsuranceCompany patientData={formData} formData={formData} setFormData={setFormData}/>
       <PatientPaymentAgreement formData={formData} setFormData={setFormData}/>
       <PaymentAndCollectionPolicy patientData={formData} formData={formData} setFormData={setFormData}/>
-      <PrivacyPracticesForm formData={formData} setFormData={setFormData}/>  */}
+      <PrivacyPracticesForm formData={formData} setFormData={setFormData}/> 
 
       {/* 🔥 ONE SUBMIT */}
       <div className="text-center p-10">

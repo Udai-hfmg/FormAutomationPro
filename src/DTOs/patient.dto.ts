@@ -20,7 +20,8 @@ export interface PatientDto {
   dateOfBirth?: string;         // ISO string "YYYY-MM-DD", backend parses to DateTime
   ssnLast4?: string;            // Only last 4 digits — never expose SSN_Encrypted
   createdAt?: string;           // Readonly — set by backend
-  updatedAt?: string;           // Readonly — set by backend
+  updatedAt?: string; 
+  date?: string;          // Readonly — set by backend
 }
 
 // For CREATE forms — no id or audit fields
