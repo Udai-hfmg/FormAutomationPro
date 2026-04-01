@@ -16,8 +16,11 @@ export const documentApi = createApi({
                 method:"POST",
                 body:data
             })
+        }), 
+        getSubmissionDocument:builder.query({
+            query:()=>'api/Admin/get-sessions'
         })
     })
 })
 
-export const {useGetDocumentsQuery, usePostDocumentVersionMutation}  = documentApi
+export const {useGetDocumentsQuery, usePostDocumentVersionMutation, useGetSubmissionDocumentQuery}  = documentApi

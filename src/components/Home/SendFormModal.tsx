@@ -32,11 +32,13 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
 
   const handleSend = async () => {
     if (!canSend) return
-   const  response=await fetch(`${BASR_URL}/api/Admin/twilio-send`, {
+
+   const  response=await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        phone,formLink})})
+        phone,formLink , patientId:patientName})})
     setStep('success')
     
   }

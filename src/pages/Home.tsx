@@ -10,6 +10,7 @@ import FloatingActionBar from '../components/Home/FloatingActionBar';
 import IconButton from '../components/UI/IconButton';
 import { FaEye } from "react-icons/fa";
 import { IoIosSend } from "react-icons/io";
+import Loading from '../components/Home/Loading';
 
 export const columns = (
     data: any[],
@@ -20,57 +21,57 @@ export const columns = (
     setSelectedSingleRow: any,
     setSingleOpen: any
 ) => [
-    {
-        key: "select",
-        title: (
-            <input
-                type="checkbox"
-                onChange={() => handleSelectAll(data)}
-                checked={data && selectedRows.length === data.length && data.length > 0}
-            />
-        ),
-        render: (_: any, row: any) => (
-            <input
-                type="checkbox"
-                checked={selectedRows.includes(row.documentVersionId)}
-                onChange={() => handleRowSelect(row.documentVersionId)}
-            />
-        )
-    },
+        {
+            key: "select",
+            title: (
+                <input
+                    type="checkbox"
+                    onChange={() => handleSelectAll(data)}
+                    checked={data && selectedRows.length === data.length && data.length > 0}
+                />
+            ),
+            render: (_: any, row: any) => (
+                <input
+                    type="checkbox"
+                    checked={selectedRows.includes(row.documentVersionId)}
+                    onChange={() => handleRowSelect(row.documentVersionId)}
+                />
+            )
+        },
 
-    { key: "documentVersionId", title: "ID" },
-    { key: "versionLabel", title: "Version Label" },
+        { key: "documentVersionId", title: "ID" },
+        { key: "versionLabel", title: "Version Label" },
 
-    {
-        key: "documentType",
-        title: "Document Type",
-        render: (_: any, row: any) => row.documentType?.name || "-"
-    },
+        {
+            key: "documentType",
+            title: "Document Type",
+            render: (_: any, row: any) => row.documentType?.name || "-"
+        },
 
-    {
-        key: "retiredDate",
-        title: "Retired Date",
-        render: (_: any, row: any) =>
-            row.retiredDate
-                ? new Date(row.retiredDate).toLocaleDateString()
-                : "-"
-    },  
-    {
-        key:"Actions",
-        title:"Actions",
-        render:(_:any,row:any)=>(
-            <div className='flex flex-row gap-3 items-center'>
-                <IconButton icon={<FaEye />} onClick={() => {
-                    setSelectedSingleRow(row);
-                }} />
-                <IconButton icon={<IoIosSend />} onClick={() => {
-                    setSelectedSingleRow(row);
-                    setSingleOpen(true);
-                }} />
-            </div>
-        )
-    }
-];
+        {
+            key: "retiredDate",
+            title: "Retired Date",
+            render: (_: any, row: any) =>
+                row.retiredDate
+                    ? new Date(row.retiredDate).toLocaleDateString()
+                    : "-"
+        },
+        {
+            key: "Actions",
+            title: "Actions",
+            render: (_: any, row: any) => (
+                <div className='flex flex-row gap-3 items-center'>
+                    <IconButton icon={<FaEye />} onClick={() => {
+                        setSelectedSingleRow(row);
+                    }} />
+                    <IconButton icon={<IoIosSend />} onClick={() => {
+                        setSelectedSingleRow(row);
+                        setSingleOpen(true);
+                    }} />
+                </div>
+            )
+        }
+    ];
 
 const Home = () => {
 
@@ -80,7 +81,7 @@ const Home = () => {
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [selectedSingleRow, setSelectedSingleRow] = useState<any>(null);
     const { data = [], isLoading } = useGetDocumentsQuery("documents");
-    const  [singleOpen , setSingleOpen] = useState(false);
+    const [singleOpen, setSingleOpen] = useState(false);
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
     // ✅ Row select
@@ -117,7 +118,7 @@ const Home = () => {
         setSendModalOpen(true);
     };
 
-    const getColumn = columns(data, selectedRows, handleRowSelect, handleSelectAll ,setSendModalOpen , setSelectedSingleRow , setSingleOpen);
+    const getColumn = columns(data, selectedRows, handleRowSelect, handleSelectAll, setSendModalOpen, setSelectedSingleRow, setSingleOpen);
 
     return (
         <>
@@ -148,17 +149,17 @@ const Home = () => {
             {/* New Form Modal */}
             <Modal isOpen={newFormModalOpen} onClose={() => setNewFormModalOpen(false)}>
                 <NewFormModal newFormModalOpen={newFormModalOpen} setNewFormModalOpen={setNewFormModalOpen} />
-               
+
             </Modal>
 
             <Navbar
-                // newFormModalOpen={newFormModalOpen}
-                // setNewFormModalOpen={setNewFormModalOpen}
+            // newFormModalOpen={newFormModalOpen}
+            // setNewFormModalOpen={setNewFormModalOpen}
             />
 
             {/* Table */}
             {isLoading ? (
-                <div className="text-center mt-10">Loading...</div>
+                <Loading />
             ) : (
                 <div className='w-screen md:w-[80%] mx-auto mt-6'>
                     <SearchInput />
