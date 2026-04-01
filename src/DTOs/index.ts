@@ -16,3 +16,5 @@ export * from "./patient-details.dto";
 export * from "./patient-relations.dto";
 export * from "./documents.dto";
 export * from "./form-submission.dto";
+export * from "./patientProvider.dto";
+export * from "./signedDocument.dto"

@@ -17,11 +17,11 @@ export interface PatientDto {
   phoneAlternate?: string;
   sex?: string;
   maritalStatus?: string;
-  dateOfBirth?: string;         // ISO string "YYYY-MM-DD", backend parses to DateTime
+  dateOfBirth?: string | undefined;         // ISO string "YYYY-MM-DD", backend parses to DateTime
   ssnLast4?: string;            // Only last 4 digits — never expose SSN_Encrypted
   createdAt?: string;           // Readonly — set by backend
   updatedAt?: string; 
-  date?: string;          // Readonly — set by backend
+  date?: string | null  ;          // Readonly — set by backend
 }
 
 // For CREATE forms — no id or audit fields
@@ -44,6 +44,6 @@ export const defaultPatient: CreatePatientDto = {
   phoneAlternate: "",
   sex: "",
   maritalStatus: "",
-  dateOfBirth: "",
+  dateOfBirth: undefined,
   ssnLast4: "",
 };

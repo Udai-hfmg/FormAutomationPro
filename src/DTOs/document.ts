@@ -8,8 +8,8 @@ export interface SignedDocumentDto {
   documentTypeId: number;
   signedByName?: string;
   signedByRole?: string;
-  representative?: string;
-  signedAt?: string;            // ISO datetime string
+  RepresentativeAuthority?: string;
+  signedAt?: string | undefined;            // ISO datetime string
   signatureCaptured?: boolean;  // default false
   notes?: string;
   documentVersionId?: number;
@@ -24,8 +24,8 @@ export const defaultSignedDocument: CreateSignedDocumentDto = {
   documentTypeId: 0,
   signedByName: "",
   signedByRole: "",
-  representative: "",
-  signedAt: "",
+  RepresentativeAuthority: "",
+  signedAt: string,
   signatureCaptured: false,
   notes: "",
   documentVersionId: undefined,

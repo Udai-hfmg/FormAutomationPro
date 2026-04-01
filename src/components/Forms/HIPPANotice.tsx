@@ -1,37 +1,51 @@
 import React from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import LineInput from "../Input/FormInput";
+import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 import useFormData from "../../hooks/useFormData";
 
-const HIPAANotice = () => {
 
-  const {formData , setFormData , handleInput} = useFormData()
+
+
+const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
+
+  // const {formData , setFormData , handleInput} = useFormData()
+
+  const handleRadioChange = (field: string, value: "yes" | "no") => {
+    console.log("RADIOS:", formData?.radios);
+  setFormData((prev: any) => ({
+    ...prev,
+    radios: {
+      ...(prev.radios || {}) ,
+      [field]: value
+    }
+  }));
+};
 
 
  
 
   // ── Reusable Yes/No radio pair — untouched ────────────────────────────────
-  // const RadioPair = ({ name, field }: { name: string; field: string }) => (
-  //   <div className="flex gap-2 shrink-0">
-  //     <input
-  //       type="radio"
-  //       name={name}
-  //       checked={formData.radios?.[field] === "yes"}
-  //       onChange={() => handleRadioChange(field, "yes")}
-  //       className="appearance-none w-4 h-4 border border-black cursor-pointer checked:bg-blue-500"
-  //     />
-  //     <input
-  //       type="radio"
-  //       name={name}
-  //       checked={formData.radios?.[field] === "no"}
-  //       onChange={() => handleRadioChange(field, "no")}
-  //       className="appearance-none w-4 h-4 border border-black cursor-pointer checked:bg-blue-500"
-  //     />
-  //   </div>
-  // );
+  const RadioPair = ({ field }: { field: string }) => (
+    <div className="flex gap-2 shrink-0">
+      <input
+        type="radio"
+        name={field}
+        checked={formData?.radios?.[field] === "yes"}
+        onChange={() => handleRadioChange(field, "yes")}
+        className="appearance-none w-4 h-4 border border-black cursor-pointer checked:bg-blue-500"
+      />
+      <input
+        type="radio"
+        name={field}
+        checked={formData?.radios?.[field] === "no"}
+        onChange={() => handleRadioChange(field, "no")}
+        className="appearance-none w-4 h-4 border border-black cursor-pointer checked:bg-blue-500"
+      />
+    </div>
+  );
 
   return (
     <FormContainer>
@@ -55,7 +69,7 @@ const HIPAANotice = () => {
 
         {/* Row 1 — updated text */}
         <div className="flex items-start mb-4">
-          {/* <RadioPair name="row1" field="copyOfPrivacyNotice" /> */}
+          <RadioPair field="HIPAA_COPY_OFFERED" />
           <p className="flex-1 ml-4">
             I have been offered a copy of the Privacy Notice (last page of packet).
           </p>
@@ -63,7 +77,7 @@ const HIPAANotice = () => {
 
         {/* Row 2 — updated text */}
         <div className="flex items-start mb-4">
-          {/* <RadioPair name="row2" field="requestedCopy" /> */}
+          <RadioPair field="HIPAA_COPY_STATUS" />
           <p className="flex-1 ml-4">
             I have requested/received/declined a copy of the Privacy Notice.{" "}
             <span className="italic">(circle one)</span>
@@ -72,13 +86,13 @@ const HIPAANotice = () => {
 
         {/* Row 3 */}
         <div className="flex items-start mb-4">
-          {/* <RadioPair name="row3" field="privacyNotice" /> */}
+         <RadioPair field="HIPAA_READ_NOTICE" />
           <p className="flex-1 ml-4">I have read the Privacy Notice.</p>
         </div>
 
         {/* Row 4 — updated text */}
         <div className="flex items-start mb-4">
-          {/* <RadioPair name="row4" field="prescriptionInformation" /> */}
+          <RadioPair field="HIPAA_PRESCRIPTION_ALLOWED" />
           <p className="flex-1 ml-4">
             I give permission for Horizon Family Medical Group to obtain prescription information
             electronically from any physician, pharmacy, or insurance company.
@@ -87,7 +101,7 @@ const HIPAANotice = () => {
 
         {/* Row 5 — Family members */}
         <div className="flex items-start mb-2">
-          {/* <RadioPair name="row5" field="permission" /> */}
+          <RadioPair field="HIPAA_FAMILY_ALLOWED" />
 
           <div className="flex-1 ml-4">
             <p className="mb-1">I give permission to leave information with my family member(s)</p>
@@ -96,7 +110,7 @@ const HIPAANotice = () => {
 
             {/* 3 rows — separate inputs */}
             <div className="space-y-2">
-              {formData?.hipaa?.map((item) => (
+              {formData?.hipaa?.map((item:any) => (
                 <div key={item.hipaaFamilyMemberId} className="flex gap-3">
                   <LineInput
                   name="familyMemberName"

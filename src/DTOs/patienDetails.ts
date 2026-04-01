@@ -58,7 +58,7 @@ export interface PatientInsuranceDto {
   memberId?: string;
   groupNumber?: string;
   subscriberName?: string;
-  subscriberDOB?: string;       // ISO date string "YYYY-MM-DD"
+  subscriberDOB?: string |  null;       // ISO date string "YYYY-MM-DD"
   relationshipToPatient?: string;
   isActive?: boolean;           // default true
   createdAt?: string;           // Readonly — set by backend
@@ -75,7 +75,7 @@ export const defaultPatientInsurance: CreatePatientInsuranceDto = {
   memberId: "",
   groupNumber: "",
   subscriberName: "",
-  subscriberDOB: "",
+  subscriberDOB: null,
   relationshipToPatient: "",
   isActive: true,
 };

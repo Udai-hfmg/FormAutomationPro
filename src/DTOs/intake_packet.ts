@@ -5,7 +5,7 @@
 export interface IntakePacketDto {
   intakePacketId?: number;
   patientId: number;
-  packedDate: string;           // ISO string "YYYY-MM-DD"
+  packetDate: string | undefined;           // ISO string "YYYY-MM-DD"
   locationName: string;
   officeId: number;
   createdAt?: string;           // Readonly — set by backend
@@ -17,7 +17,7 @@ export type UpdateIntakePacketDto = Partial<CreateIntakePacketDto> & { intakePac
 
 export const defaultIntakePacket: CreateIntakePacketDto = {
   patientId: 0,
-  packedDate: "",
+  packetDate: undefined,
   locationName: "",
   officeId: 0,
 };

@@ -51,3 +51,29 @@ export const defaultOfficeDocumentRequirement: OfficeDocumentRequirementDto = {
   isRequired: false,
   isActive: true,
 };
+
+
+
+export interface PatientOfficeDto {
+
+  isPrimary: boolean;
+  firstVisitDate: string | undefined;
+  active: boolean;
+  officeId: number;
+}
+
+export type CreatePatientOfficeDto = Omit<
+  PatientOfficeDto,
+  "patientOfficeId"
+>;
+
+export type UpdatePatientOfficeDto = Partial<CreatePatientOfficeDto> & {
+  patientOfficeId: number;
+};
+
+export const defaultPatientOffice: CreatePatientOfficeDto = {
+  isPrimary: true,
+  firstVisitDate:undefined,
+  active: true,
+  officeId: 0,
+};

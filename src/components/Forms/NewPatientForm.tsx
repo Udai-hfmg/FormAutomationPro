@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import type { PatientData } from "../Input/PatientData";
-import SignatureField from "../Input/SignatureField";
-import useFormData from "../../hooks/useFormData";
+
+import type { data } from "../Input/FormInput";
 
 type LineInputProps = {
   className?: string;
@@ -23,12 +22,7 @@ const LineInput = ({ className = "", type, name, value, onChange }: LineInputPro
   />
 );
 
-const NewPatientForm = () => {
-
-
-const { sectionMap,formData,handleInput } = useFormData() // Get the sectionMap from the useFormData hook
-  
-
+const NewPatientForm = ({formData,setFormData,handleInput}:data) => {
 
 console.log('formData in NewPatientForm', formData)
 
@@ -155,7 +149,7 @@ console.log('formData in NewPatientForm', formData)
 
           <div className="flex items-end gap-2 flex-1">
             <label>Phone#</label>
-            <LineInput name="contactPhone" value={formData?.emergencyContact?.phone} onChange={handleInput}/>
+            <LineInput name="phone" value={formData?.emergencyContact?.phone} onChange={handleInput}/>
           </div>
 
         </div>

@@ -19,3 +19,9 @@ const LineInput = ({ className = ""  , type, name, value, onChange}: LineInputIn
 );
 
 export default LineInput;
+
+    export type data = {
+  formData: any;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
+  handleInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    }

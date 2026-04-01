@@ -24,7 +24,7 @@
 //         const data = await response.json()
 
 //         console.log('original data',data);
-        
+
 //         // ✅ store raw backend data
 //         setPatientData(data)
 
@@ -163,7 +163,8 @@ import React, { useState } from 'react'
 import HeaderImage from '../UI/HeaderImage'
 import FormContainer from '../UI/FormContainer'
 import type { PatientDataProps } from '../Input/PatientData'
-import {useSearchParams} from 'react-router'
+import { useSearchParams } from 'react-router'
+import type { data } from '../Input/FormInput'
 
 
 function HeaderTitles() {
@@ -175,16 +176,15 @@ function HeaderTitles() {
         <div>845-291-7400 x 2</div>
     </>
 }
-import useFormData from '../../hooks/useFormData'
 
 
-const Form1 = () => {
+const Form1 = ({ formData, setFormData, handleInput }: data) => {
 
-const [facility, setFacility] = useState(null)
-    
-   const {formData , setFormData , handleInput} = useFormData()
- 
-   
+    const [facility, setFacility] = useState(null)
+
+
+
+
     return (
         <FormContainer>
             <HeaderImage headerContent={<HeaderTitles />} />
@@ -218,13 +218,13 @@ const [facility, setFacility] = useState(null)
 
                 <div className="mt-16 flex items-center">
                     <span className="mr-3">EMAIL ADDRESS:</span>
-                    <input type="email" className="flex-1 border-b border-black outline-none" 
-                    name="email"
-                    placeholder="your.email@example.com" 
-                    value={formData?.newPatient?.email || ""}
-                     onChange={handleInput}
-                        
-                      />
+                    <input type="email" className="flex-1 border-b border-black outline-none"
+                        name="email"
+                        placeholder="your.email@example.com"
+                        value={formData?.newPatient?.email || ""}
+                        onChange={handleInput}
+
+                    />
                 </div>
             </div>
         </FormContainer>
