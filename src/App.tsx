@@ -33,10 +33,12 @@ function App() {
             <Route path='/files' element={<Home />} />
             <Route path='/preview' element={<PreviewPage />} />
             <Route path='/profile' element={<Profile />} />
-            <Route path='/forms' element={<Forms />} />
-            <Route path='/forms/:formIds' element={<RenderForm />} />
+
             <Route path='/submissions' element={<FormSubmissionsTable />} />
           </Route>
+
+          <Route path='/forms' element={<Forms />} />
+          <Route path='/forms/:formIds' element={<RenderForm />} />
         </Routes>
       </AppDataProvider>
     </>
