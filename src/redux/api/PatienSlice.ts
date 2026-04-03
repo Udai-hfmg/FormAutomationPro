@@ -18,10 +18,24 @@ export const patientApi = createApi({
                 body: data
             })
         }) ,
-        getSesionDetails: builder.query({
-            query: (sessionId) => `api/Admin/get-session/${sessionId}`
+       uploadSignature: builder.mutation({
+  query: ({ patientId, file }: { patientId: number; file: Blob }) => {
+    const formData = new FormData();
+
+    formData.append("file", file, "signature.png"); // ✅ file
+    formData.append("patientId", patientId.toString()); // ✅ patientId
+
+    return {
+      url: `api/Patient/upload-signature`,
+      method: "POST",
+      body: formData
+    };
+  }
+}),
+       getSesionDetails:builder.query({
+            query: (sessionId: string) => `api/Admin/get-session/${sessionId}`
         })
     })
 })
 
-export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery } = patientApi
+export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery,useUploadSignatureMutation } = patientApi

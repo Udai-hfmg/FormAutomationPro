@@ -1,34 +1,11 @@
 import React, { useEffect, useState } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import LineInput from "../Input/FormInput";
+import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 
-const YourInsuranceCompany = ({ patientData }: PatientData) => {
-
-  const [YourInsuranceCompanyDate, setYourInsuranceCompanyDate] = useState("");
-  const [YourInsuranceCompanySignature, setYourInsuranceCompanySignature] = useState("");
-
-  useEffect(() => {
-    // console.log("Insurance Company Form Data:", patientData);
-
-    if (patientData) {
-
-      setYourInsuranceCompanyDate(
-        patientData.YourInsuranceCompanyDate
-          ? new Date(patientData.YourInsuranceCompanyDate)
-              .toISOString()
-              .split("T")[0]
-          : ""
-      );
-
-      setYourInsuranceCompanySignature(
-        patientData.YourInsuranceCompanySignature || ""
-      );
-    }
-
-  }, [patientData]);
+const YourInsuranceCompany = ({formData, setFormData, handleInput}:data) => {
 
   return (
     <FormContainer>
@@ -109,30 +86,15 @@ const YourInsuranceCompany = ({ patientData }: PatientData) => {
           <div className="flex items-end gap-2 w-full">
             <label className="whitespace-nowrap">Signature:</label>
 
-            <SignatureField
-              className="flex-1"
-              value={YourInsuranceCompanySignature}
-              onChange={(dataUrl) => {
-                (prev: any) => ({
-                  ...prev,
-                  YourInsuranceCompanySignature: dataUrl
-                })
-              }}
-            />
+          <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+            
 
           </div>
 
           <div className="flex items-end gap-2 w-full sm:w-56">
             <label className="whitespace-nowrap">Date:</label>
 
-            <LineInput
-              type="date"
-              className="flex-1"
-              value={YourInsuranceCompanyDate}
-              onChange={(e) =>
-                setYourInsuranceCompanyDate(e.target.value)
-              }
-            />
+            <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")}/>
 
           </div>
 

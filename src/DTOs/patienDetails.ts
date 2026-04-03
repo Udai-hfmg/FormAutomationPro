@@ -7,7 +7,7 @@ export interface PatientDemographicDto {
   language?: string;
   race?: string;
   ethnicity?: string;
-  updatedAt?: string;           // Readonly — set by backend
+  updatedAt?: string | null;           // Readonly — set by backend
 }
 
 // Only editable fields for form
@@ -31,7 +31,7 @@ export interface PatientEmploymentDto {
   employerName?: string;
   occupation?: string;
   employerAddress?: string;
-  createdAt?: string;           // Readonly — set by backend
+  createdAt?: null;           // Readonly — set by backend
 }
 
 export type CreatePatientEmploymentDto = Omit<PatientEmploymentDto, "patientEmploymentId" | "createdAt">;
@@ -61,7 +61,7 @@ export interface PatientInsuranceDto {
   subscriberDOB?: string |  null;       // ISO date string "YYYY-MM-DD"
   relationshipToPatient?: string;
   isActive?: boolean;           // default true
-  createdAt?: string;           // Readonly — set by backend
+  createdAt?: string | null;           // Readonly — set by backend
 }
 
 export type CreatePatientInsuranceDto = Omit<PatientInsuranceDto, "patientInsuranceId" | "createdAt">;

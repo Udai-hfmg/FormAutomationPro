@@ -1,3 +1,4 @@
+import type { FinalFormData } from "../../hooks/useFormData";
 
 
 interface LineInputInterface extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -23,5 +24,5 @@ export default LineInput;
     export type data = {
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
-  handleInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInput: (e: React.ChangeEvent<HTMLInputElement>,section:keyof FinalFormData) => void;
     }

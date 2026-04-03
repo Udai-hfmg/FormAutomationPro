@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import LineInput from "../Input/FormInput";
+import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 
-const PaymentAndCollectionPolicy = ({ patientData, formData, setFormData }: PatientData) => {
-
-const patient = patientData?.patient || {}
+const PaymentAndCollectionPolicy = ({formData, setFormData, handleInput}:data) => {
 
   const handleNameChange = (value: string) => {
     setFormData((prev: any) => ({ ...prev, name: value }));
@@ -69,27 +67,14 @@ const patient = patientData?.patient || {}
               Name of Patient
             </label>
 
-            <LineInput
-              className="flex-1"
-              value={patient ? `${patient.firstName || ""} ${patient.lastName || "" }` : ""}
-                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                            handleNameChange(e.target.value)
-                                          }
-            />
+             <LineInput name="firstName" value={formData?.newPatient?.firstName} onChange={(e) => handleInput(e, "newPatient")}/>
 
           </div>
 
           <div className="flex items-end gap-2 w-full sm:w-60">
             <label>Date</label>
 
-            <LineInput
-              type="date"
-              className="flex-1"
-              // value={PaymentAndCollectionPolicyDate}
-              // onChange={(e) =>
-              //   setPaymentAndCollectionPolicyDate(e.target.value)
-              // }
-            />
+            <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")}/>
 
           </div>
 
@@ -102,17 +87,7 @@ const patient = patientData?.patient || {}
             Signature of Patient or Patient's Legal Representative
           </label>
 
-          <SignatureField
-            className="flex-1"
-            onChange={(dataUrl:string | null) =>
-               setFormData((prev: any) => ({
-                  ...prev,
-                  signature: dataUrl,
-                }))
-
-
-              }
-          />
+          <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
 
         </div>
 

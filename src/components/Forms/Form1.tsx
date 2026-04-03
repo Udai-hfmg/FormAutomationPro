@@ -222,7 +222,7 @@ const Form1 = ({ formData, setFormData, handleInput }: data) => {
                         name="email"
                         placeholder="your.email@example.com"
                         value={formData?.newPatient?.email || ""}
-                        onChange={handleInput}
+                        onChange={(e) => handleInput(e, "newPatient")}
 
                     />
                 </div>

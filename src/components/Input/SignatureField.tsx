@@ -1,16 +1,19 @@
 import { useRef, useState, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import type SignatureCanvasType from "react-signature-canvas";
+import useFormData from "../../hooks/useFormData";
 
 interface SignatureFieldProps {
   className?: string;
   // FIX: accepts string | null so both "signed" and "cleared" states work
-  onChange?: (dataUrl: string | null) => void;
+  onChange?: (data: Blob | null) => void;
+value?: Blob | null;
   name?: string;
-  value?: string | null;
+
 }
 
 const SignatureField = ({ className = "", onChange, name, value }: SignatureFieldProps) => {
+  const {formData,setFormData}=useFormData()
   const sigCanvasRef = useRef<SignatureCanvasType>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isEmpty, setIsEmpty] = useState<boolean>(true);
@@ -49,27 +52,42 @@ const SignatureField = ({ className = "", onChange, name, value }: SignatureFiel
   }, []);
 
   // If a saved value comes in from DB, draw it onto the canvas
-  useEffect(() => {
-    if (!value || !sigCanvasRef.current) return;
-    sigCanvasRef.current.fromDataURL(value);
+useEffect(() => {
+  if (!value || !sigCanvasRef.current) return;
+
+  const reader = new FileReader();
+
+  reader.onloadend = () => {
+    const base64 = reader.result as string;
+    sigCanvasRef.current?.fromDataURL(base64);
     setIsEmpty(false);
-  }, [value]);
+  };
+
+  reader.readAsDataURL(value);
+}, [value]);
 
   const handleBegin = (): void => {
     setIsEmpty(false);
     onChange?.(null); // signal "in progress"
   };
 
-  const handleEnd = (): void => {
-    if (!sigCanvasRef.current) return;
-    const dataUrl = sigCanvasRef.current
-      .getSignaturePad()
-      .toDataURL("image/png");
-    onChange?.(dataUrl); // FIX: always string here, never null
-  };
+ const handleEnd = (): void => {
+  const canvas = sigCanvasRef.current?.getCanvas();
+  if (!canvas) return;
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+
+    onChange?.(blob); // ✅ send blob instead of base64
+  }, "image/png");
+};
 
   const handleClear = (): void => {
     sigCanvasRef.current?.clear();
+    setFormData((prev:any) => ({
+      ...prev,
+      signature: null,
+    }));
     setIsEmpty(true);
     onChange?.(null); // FIX: null on clear — HIPAANotice must accept string | null
   };

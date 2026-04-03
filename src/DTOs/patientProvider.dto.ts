@@ -4,7 +4,7 @@ export interface PatientProviderDto {
   providerName: string;
   providerType: string;
   notes?: string;
-  createdAt?: string;
+  createdAt?: string | null;           // Readonly — set by backend
 }
 
 export type CreatePatientProviderDto = Omit<

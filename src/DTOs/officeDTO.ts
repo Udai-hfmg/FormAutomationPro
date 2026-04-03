@@ -57,7 +57,7 @@ export const defaultOfficeDocumentRequirement: OfficeDocumentRequirementDto = {
 export interface PatientOfficeDto {
 
   isPrimary: boolean;
-  firstVisitDate: string | undefined;
+  firstVisitDate: string | null;
   active: boolean;
   officeId: number;
 }
@@ -73,7 +73,7 @@ export type UpdatePatientOfficeDto = Partial<CreatePatientOfficeDto> & {
 
 export const defaultPatientOffice: CreatePatientOfficeDto = {
   isPrimary: true,
-  firstVisitDate:undefined,
+  firstVisitDate: null,
   active: true,
   officeId: 0,
 };

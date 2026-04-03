@@ -4,7 +4,7 @@ import type { HipaaFamilyMemberDto, PatientDto, PatientProviderDto } from "../DT
 import type { InsurancePlanDto } from "../DTOs/insurance_plan"
 import type { EmergencyContactDto } from "../DTOs/emegrency"
 import type { PatientPharmacyDto } from "../DTOs/patientPharmacy"
-import { usePostPatientInfoMutation } from "../redux/api/PatienSlice"
+import { usePostPatientInfoMutation, useUploadSignatureMutation } from "../redux/api/PatienSlice"
 import type { PatientInsuranceDto } from "../DTOs/patienDetails"
 import { create } from "framer-motion/m"
 import type { IntakePacketDto } from "../DTOs/intake_packet"
@@ -32,20 +32,21 @@ export interface FinalFormData {
     patientInsurance: PatientInsuranceDto
     radios: Record<string, "yes" | "no">
     unableToObtainSignature: UnableToObtainSignatureDto
+    signature?: Blob | null
 
 }
 
 const cleanDate = (date: string) =>
-    date ? new Date(date).toISOString() : undefined;
+    date ? new Date(date).toISOString() : null;
 
 const toApiDate = (date?: string) => {
     if (!date) return undefined;
     const d = new Date(date);
-    return isNaN(d.getTime()) ? undefined : d.toISOString();
+    return isNaN(d.getTime()) ? null : d.toISOString();
 };
 
 const toInputDate = (date: string) =>
-    date ? date.split("T")[0] : "";
+    date ? date.split("T")[0] : null;
 
 const buildMap = (formData: FinalFormData): Record<string, keyof FinalFormData> => {
     const map: Record<string, keyof FinalFormData> = {}
@@ -76,20 +77,21 @@ const useFormData = () => {
                 phonePrimary: "",
                 phoneAlternate: "",
                 email: "",
-                dateOfBirth: "",
+                dateOfBirth: null,
                 sex: "",
                 maritalStatus: "",
                 ssnLast4: "",
-                createdAt: "",
-                updatedAt: "",
-                date: ''
+                createdAt: null,
+                updatedAt: null,
+                date: '',
+                initials: ""
             },
             patientDemographic: {
                 patientId: 0,
                 ethnicity: "",
                 language: "",
                 race: "",
-                updatedAt: "",
+                updatedAt: null,
             },
             patientEmployment: {},
             hipaa: [{
@@ -134,7 +136,7 @@ const useFormData = () => {
                 groupNumber: "",
 
                 subscriberName: "",          // ✅ ADD THIS
-                subscriberDOB: "",           // "YYYY-MM-DD"
+                subscriberDOB: null,           // "YYYY-MM-DD"
                 relationshipToPatient: "",   // e.g., "Self"
 
                 isActive: true               // ✅ REQUIRED
@@ -146,7 +148,7 @@ const useFormData = () => {
                 packetDate: "",
                 locationName: "",
                 officeId: 0,
-                createdAt: "",
+                createdAt: null,
             },
             patientOffice: {
                 active: true,
@@ -160,7 +162,7 @@ const useFormData = () => {
                 providerName: "",
                 providerType: "",
                 notes: "",
-                createdAt: "",
+                createdAt: null,
             },
             signedDocuments: {
                 signedDocumentId: 0,
@@ -169,7 +171,7 @@ const useFormData = () => {
                 signedByName: "",
                 signedByRole: "",
                 RepresentativeAuthority: "",
-                signedAt: "",
+                signedAt: null,
                 signatureCaptured: false,
                 notes: "",
                 documentVersionId: undefined,
@@ -177,10 +179,11 @@ const useFormData = () => {
             unableToObtainSignature: {
                 unableId: 0,
                 signedDocumentId: 0,
-                attemptDate: "",
+                attemptDate: null,
                 reason: "",
                 staffInitials: "",
-            }
+            },
+            signature: null 
 
         })
 
@@ -188,6 +191,7 @@ const useFormData = () => {
     const [error, setError] = useState<Error | null>(null)
 
     const [postPatienForm] = usePostPatientInfoMutation()
+    const [uploadSignature] = useUploadSignatureMutation()
 
     //function to fetch data from backend and populate formData state
     const fetchFormData = async (patientId: string) => {
@@ -225,9 +229,10 @@ const useFormData = () => {
                     phoneAlternate: data?.patient?.phoneAlternate || "",
                     email: data?.patient?.email || "",
                     addressLine2: data?.patient?.addressLine2 || "",
-                    createdAt: data?.patient?.createdAt || "",
-                    updatedAt: data?.patient?.updatedAt || "",
+                    createdAt: data?.patient?.createdAt || null,
+                    updatedAt: data?.patient?.updatedAt || null,
                     sex: data?.patient?.sex || "",
+                    initials: data?.patient?.initials || "",
 
                 },
                 patientDemographic: {
@@ -236,16 +241,16 @@ const useFormData = () => {
                     ethnicity: data?.demographics?.ethnicity || "",
                     language: data?.demographics?.language || "",
                     race: data?.demographics?.race || "",
-                    updatedAt: data?.demographics?.updatedAt || "",
+                    updatedAt: data?.demographics?.updatedAt || null,
                 },
                 patientEmployment: {
                     employerAddress: data?.employer?.employerAddress || "",
                     employerName: data?.employer?.employerName || "",
                     occupation: data?.employer?.occupation || "",
-                    createdAt: data?.employer?.createdAt || "",
+                    createdAt: data?.employer?.createdAt || null,
 
                 },
-                hipaa: data?.hippa.map((item: any) => ({
+                hipaa: data?.hipaa?.map((item: any) => ({
                     familyMemberName: item.familyMemberName || "",
                     relationship: item.relationship || "",
                     hipaaFamilyMemberId: item.hipaaFamilyMemberId || 0,
@@ -301,10 +306,10 @@ const useFormData = () => {
                 intakePacket: {
                     intakePacketId: data?.intakePacket?.intakePacketId || 0,
                     patientId: data?.intakePacket?.patientId || 0,
-                    packetDate: toInputDate(data?.intakePacket?.packetDate),
+                    packetDate: data?.intakePacket?.packetDate || null,
                     locationName: data?.intakePacket?.locationName || "",
                     officeId: data?.intakePacket?.officeId || 0,
-                    createdAt: data?.intakePacket?.createdAt || "",
+                    createdAt: data?.intakePacket?.createdAt || null,
                 },
                 patientOffice: {
                     active: data?.patientOffice?.active ?? true,
@@ -318,7 +323,7 @@ const useFormData = () => {
                     providerName: data?.patientProvider?.providerName || "",
                     providerType: data?.patientProvider?.providerType || "",
                     notes: data?.patientProvider?.notes || "",
-                    createdAt: data?.patientProvider?.createdAt || "",
+                    createdAt: data?.patientProvider?.createdAt || null,
                 },
                 signedDocuments: {
                     signedDocumentId: data?.signedDocument?.signedDocumentId || 0,
@@ -327,7 +332,7 @@ const useFormData = () => {
                     signedByName: data?.signedDocument?.signedByName || "",
                     signedByRole: data?.signedDocument?.signedByRole || "",
                     RepresentativeAuthority: data?.signedDocument?.representative || "",
-                    signedAt: data?.signedDocument?.signedAt || "",
+                    signedAt: data?.signedDocument?.signedAt || null,
                     signatureCaptured: data?.signedDocument?.signatureCaptured ?? false,
                     notes: data?.signedDocument?.notes || "",
                     documentVersionId: data?.signedDocument?.documentVersionId,
@@ -335,10 +340,11 @@ const useFormData = () => {
                 unableToObtainSignature: {
                     unableId: data?.unableToObtainSignature?.unableId || 0,
                     signedDocumentId: data?.unableToObtainSignature?.signedDocumentId || 0,
-                    attemptDate: data?.unableToObtainSignature?.attemptDate?.split("T")[0] || "",
+                    attemptDate: data?.unableToObtainSignature?.attemptDate?.split("T")[0] || null,
                     reason: data?.unableToObtainSignature?.reason || "",
                     staffInitials: data?.unableToObtainSignature?.staffInitials || "",
-                }
+                },
+                signature:data?.signature || null
 
             })
         } catch (err) {
@@ -438,10 +444,19 @@ const useFormData = () => {
                     : null,
                 SignedDocumentResponses: signedDocumentResponses
             }
-            
+
             console.log("FINAL PAYLOAD", JSON.stringify(payload, null, 2));
 
-            await postPatienForm(payload).unwrap()
+            const res = await postPatienForm(payload).unwrap()
+            const patientId = res?.patientId; // ✅ CORRECT ID
+            if (formData?.signature && patientId) {
+                await uploadSignature({
+                    patientId: patientId,
+                    file: formData.signature
+                }).unwrap();
+            }
+            console.log('this is the response form the post api',res);
+            
         } catch (err) {
             setError(err as Error)
         } finally {
@@ -449,14 +464,16 @@ const useFormData = () => {
         }
     }
 
-    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInput = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        section: keyof FinalFormData
+    ) => {
         const { name, value, type, checked } = e.target;
-
 
         setFormData((prev: any) => ({
             ...prev,
-            [sectionMap[name]]: {
-                ...prev[sectionMap[name]],
+            [section]: {
+                ...prev[section],
                 [name]: type === "checkbox" ? checked : value
             }
         }));

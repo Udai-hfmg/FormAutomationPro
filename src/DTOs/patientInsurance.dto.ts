@@ -11,7 +11,7 @@ export interface PatientInsuranceDto {
   groupNumber?: string;
 
   subscriberName?: string;
-  subscriberDOB?: string;           // "YYYY-MM-DD"
+  subscriberDOB?: string | null;           // "YYYY-MM-DD"
   relationshipToPatient?: string;
 
   isActive: boolean;                // REQUIRED
@@ -40,7 +40,7 @@ export type UpdatePatientInsuranceDto =
   groupNumber: "",
 
   subscriberName: "",
-  subscriberDOB: "",
+  subscriberDOB: null,
   relationshipToPatient: "",
 
   isActive: true

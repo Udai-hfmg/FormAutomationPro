@@ -9,7 +9,7 @@ export interface SignedDocumentDto {
   signedByName?: string;
   signedByRole?: string;
   RepresentativeAuthority?: string;
-  signedAt?: string | undefined;            // ISO datetime string
+  signedAt?: string | null;            // ISO datetime string
   signatureCaptured?: boolean;  // default false
   notes?: string;
   documentVersionId?: number;
@@ -25,7 +25,7 @@ export const defaultSignedDocument: CreateSignedDocumentDto = {
   signedByName: "",
   signedByRole: "",
   RepresentativeAuthority: "",
-  signedAt: string,
+  signedAt: new Date().toISOString(),
   signatureCaptured: false,
   notes: "",
   documentVersionId: undefined,
@@ -71,7 +71,7 @@ export const defaultSignedDocumentResponse: CreateSignedDocumentResponseDto = {
 export interface UnableToObtainSignatureDto {
   unableId?: number;
   signedDocumentId: number;
-  attemptDate?: string;         // ISO date "YYYY-MM-DD"
+  attemptDate?: string | null;         // ISO date "YYYY-MM-DD"
   reason?: string;
   staffInitials?: string;
 }

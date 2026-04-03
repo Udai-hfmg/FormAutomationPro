@@ -1,11 +1,11 @@
 import React from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import LineInput from "../Input/FormInput";
+import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from '../Input/SignatureField'
 
-const PrivacyPracticesForm = ({patientData}:PatientData) => {
+const PrivacyPracticesForm = ({formData, setFormData, handleInput}:data) => {
   return (
     <FormContainer>
          <HeaderImage />
@@ -32,12 +32,12 @@ const PrivacyPracticesForm = ({patientData}:PatientData) => {
         <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-10">
          <div className="relative w-full overflow-visible">
   <label className="whitespace-nowrap ">Patient Signature</label>
-  <SignatureField className="flex-1" onChange={(dataUrl) => console.log(dataUrl)} />
+ <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
 </div>
 
           <div className="flex items-end gap-2 w-full sm:w-60">
             <label>Date</label>
-            <LineInput type="date" className="flex-1" />
+           <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")}/>
           </div>
         </div>
 
@@ -59,17 +59,17 @@ const PrivacyPracticesForm = ({patientData}:PatientData) => {
 
           <div className="flex items-end gap-2 w-full sm:w-60">
             <label>Date</label>
-            <LineInput type="date" className="flex-1" />
+           <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")}/>
           </div>
 
           <div>
             <label>Reason</label>
-            <LineInput className="w-full mt-1" />
+            <LineInput className="w-full mt-1" name="reason" value={formData?.unableToObtainSignature?.reason} onChange={(e) => handleInput(e, "unableToObtainSignature")} />
           </div>
 
           <div className="flex items-end gap-2 w-full sm:w-40">
             <label>Initials</label>
-            <LineInput className="flex-1" />
+            <LineInput className="w-full" name="initials" value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} />
           </div>
 
         </div>

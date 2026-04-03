@@ -9,23 +9,55 @@ import useFormData from "../../hooks/useFormData";
 
 
 
-const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
+const HIPAANotice = ({ formData, setFormData, handleInput }: data) => {
 
-  // const {formData , setFormData , handleInput} = useFormData()
 
   const handleRadioChange = (field: string, value: "yes" | "no") => {
-    console.log("RADIOS:", formData?.radios);
-  setFormData((prev: any) => ({
-    ...prev,
-    radios: {
-      ...(prev.radios || {}) ,
-      [field]: value
-    }
-  }));
-};
+    setFormData((prev: any) => ({
+      ...prev,
+      radios: {
+        ...(prev.radios || {}),
+        [field]: value
+      }
+    }));
+  };
 
 
- 
+  const handleRepresentative = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setFormData((prev: any) => {
+      const existing = prev.hipaa || [];
+
+      const repIndex = existing.findIndex((x: any) => x.isRepresentative);
+
+      let updated = [...existing];
+
+      if (repIndex >= 0) {
+        // update existing representative
+        updated[repIndex] = {
+          ...updated[repIndex],
+          [name]: value
+        };
+      } else {
+        // create new representative entry
+        updated.push({
+          hipaaFamilyMemberId: formData?.hipaa?.hipaaFamilyMemberId,
+          familyMemberName: name === "familyMemberName" ? value : "",
+          relationship: name === "relationship" ? value : "",
+          isRepresentative: true
+        });
+      }
+
+      return {
+        ...prev,
+        hipaa: updated
+      };
+    });
+  };
+
+
+
 
   // ── Reusable Yes/No radio pair — untouched ────────────────────────────────
   const RadioPair = ({ field }: { field: string }) => (
@@ -86,7 +118,7 @@ const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
 
         {/* Row 3 */}
         <div className="flex items-start mb-4">
-         <RadioPair field="HIPAA_READ_NOTICE" />
+          <RadioPair field="HIPAA_READ_NOTICE" />
           <p className="flex-1 ml-4">I have read the Privacy Notice.</p>
         </div>
 
@@ -110,22 +142,22 @@ const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
 
             {/* 3 rows — separate inputs */}
             <div className="space-y-2">
-              {formData?.hipaa?.map((item:any) => (
+              {formData?.hipaa?.map((item: any) => (
                 <div key={item.hipaaFamilyMemberId} className="flex gap-3">
                   <LineInput
-                  name="familyMemberName"
+                    name="familyMemberName"
                     className="flex-1"
                     placeholder="Full name"
                     value={item.familyMemberName}
-                    onChange={handleInput}
-                    
+                    onChange={(e) => handleInput(e, "hipaa")}
+
                   />
                   <LineInput
-                  name="relationship"
+                    name="relationship"
                     className="flex-1"
                     placeholder="Relationship"
                     value={item.relationship}
-                   onChange={handleInput}
+                    onChange={(e) => handleInput(e, "hipaa")}
                   />
                 </div>
               ))}
@@ -142,39 +174,27 @@ const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
             <div className="flex items-end gap-2 flex-1 min-w-[180px]">
               <label className="shrink-0">Name:</label>
               <LineInput
+                name="firstName"
                 className="flex-1"
                 value={`${formData?.newPatient.firstName} ${formData?.newPatient.lastName}`}
-                onChange={handleInput}
+                onChange={(e) => handleInput(e, "newPatient")}
               />
             </div>
             <div className="flex items-end gap-2 w-52">
               <label className="shrink-0">Date:</label>
-              <LineInput
-                type="date"
-                className="flex-1"
-                value={formData?.newPatient?.date || ""}
-               onChange={handleInput}
-              />
+              <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")} />
             </div>
           </div>
 
           {/* Signature */}
           <div className="flex gap-4 items-start">
             <label className="shrink-0 pt-1">Signature:</label>
-            <SignatureField
-              className="flex-1"
-              onChange={(dataUrl: string | null) =>
-                setFormData((prev: any) => ({
-                  ...prev,
-                  signature: dataUrl,
-                }))
-              }
-            />
+         <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
           </div>
         </div>
 
         {/* ── ADDED: "If signing as patient's representative" section ── */}
-        {/* <div className="mt-8 pt-4 border-t border-gray-300">
+        <div className="mt-8 pt-4 border-t border-gray-300">
           <p className="font-semibold mb-4">
             If you are signing as the patient's representative:
           </p>
@@ -183,26 +203,27 @@ const HIPAANotice = ({ formData, setFormData, handleInput }:data) => {
           <div className="flex items-end gap-2 mb-4">
             <label className="shrink-0">Name:</label>
             <LineInput
+              name="familyMemberName"
               className="flex-1"
-              value={formData.representativeName ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleRepresentativeNameChange(e.target.value)
+              value={
+                formData?.hipaa?.find((x: any) => x.isRepresentative)?.familyMemberName || ""
               }
+              onChange={handleRepresentative}
             />
           </div>
-
           {/* Describe your authority */}
-          {/* <div className="flex items-end gap-2">
+          <div className="flex items-end gap-2">
             <label className="shrink-0 whitespace-nowrap">Describe your authority:</label>
             <LineInput
+              name="relationship"
               className="flex-1"
-              value={formData.representativeAuthority ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleRepresentativeAuthorityChange(e.target.value)
+              value={
+                formData?.hipaa?.find((x: any) => x.isRepresentative)?.relationship || ""
               }
+              onChange={handleRepresentative}
             />
-          </div> */}
-        {/* </div>  */}
+          </div>
+        </div>
 
       </div>
     </FormContainer>

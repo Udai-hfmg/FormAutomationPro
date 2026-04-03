@@ -1,42 +1,14 @@
 import React from "react";
 import FormContainer from "../UI/FormContainer";
 import HeaderImage from "../UI/HeaderImage";
-import LineInput from "../Input/FormInput";
+import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
 
 
-const PatientPaymentAgreement = ({patientData}:PatientData) => {
-  const [formData, setFormData] = React.useState<any>({
-    initial1:"",
-    initial2:"",
-    initial3:"",  
-    initial4:"",
-    initial5:"",  
-    date:"",
-    signature:""  
-  })
+const PatientPaymentAgreement = ({formData, setFormData, handleInput}:data) => {
 
-  const handleChange= (e:any)=>{
-    const {name,value}=e.target
-    setFormData((prev:any)=>({
-      ...prev,
-      [name]:value
-    }))
-  }
-  
-  const handleSubmit = ()=>{
-    console.log(formData)
-    setFormData({
-      initial1:"",
-      initial2:"",    
-      initial3:"",  
-      initial4:"",
-      initial5:"",  
-      date:"",
-      signature:""   
-    })
-  }
+
   return (
     <FormContainer>
       <HeaderImage />
@@ -58,7 +30,7 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
           {/* 1 */}
           <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr] gap-x-2">
             <div className="pt-0.5">
-              <LineInput className="w-full" name="initial1"  value={formData.initial1} onChange={handleChange} />
+              <LineInput className="w-full" name="initials"  value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} />
             </div>
             <p className="text-justify leading-relaxed col-start-2">
               <strong>1. Insurance:</strong> All patients must complete our patient information form before seeing the provider. You
@@ -73,7 +45,7 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
           {/* 2 */}
           <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr] gap-x-2">
             <div className="pt-0.5">
-              <LineInput className="w-full" name="initial2" value={formData.initial2} onChange={handleChange} />
+              <LineInput className="w-full" name="initials" value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} />
             </div>
             <p className="text-justify leading-relaxed col-start-2">
               <strong>2. Co-payments and deductibles:</strong> All co-payments and deductibles must be paid at the time of service.
@@ -87,7 +59,7 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
           {/* 3 */}
           <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr] gap-x-2">
             <div className="pt-0.5">  
-              <LineInput className="w-full" name="initial3" value={formData.initial3} onChange={handleChange} />
+              <LineInput className="w-full" name="initials" value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} />
             </div>
             <p className="text-justify leading-relaxed col-start-2">
               <strong>3. Non-covered services:</strong> Please be aware that some and perhaps all of the services you receive may not
@@ -98,7 +70,7 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
           {/* 4 */}
           <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr] gap-x-2">
             <div className="pt-0.5">
-              <LineInput className="w-full" name="initial4" value={formData.initial4} onChange={handleChange} /> 
+              <LineInput className="w-full" name="initials" value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} /> 
             </div>
             <p className="text-justify leading-relaxed col-start-2">
               <strong>4. Nonpayment:</strong> If your account if 60 days past due, you must make payment in full or make acceptable
@@ -113,7 +85,7 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
           {/* 5 */}
           <div className="grid grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr] gap-x-2">
                         <div className="pt-0.5">
-                          <LineInput className="w-full" name="initial5" value={formData.initial5} onChange={handleChange} />
+                          <LineInput className="w-full" name="initials" value={formData?.newPatient?.initials} onChange={(e) => handleInput(e, "newPatient")} />
             </div>
             <p className="text-justify leading-relaxed col-start-2">
               <strong>5. Missed appointments:</strong> Our policy is to charge $75.00 for missed appointments that are not canceled
@@ -140,14 +112,14 @@ const PatientPaymentAgreement = ({patientData}:PatientData) => {
         <div className="flex flex-col sm:flex-row sm:items-end gap-6 mt-10">
           <div className="flex items-end gap-2 w-full">
             <label className="whitespace-nowrap text-xs sm:text-sm">Signature of patient or responsible party</label>
-             <SignatureField className="flex-1" onChange={(dataUrl) => setFormData((prev: any) => ({ ...prev, signature: dataUrl }))} />
+             <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
           </div>
           <div className="flex items-end gap-2 w-full sm:w-56">
             <label className="whitespace-nowrap text-xs sm:text-sm">Date</label>
-            <LineInput type="date" className="flex-1" name="date"  value={formData.date} onChange={handleChange} />
+            <LineInput type="date" name="updatedAt" value={formData?.newPatient?.updatedAt} onChange={(e) => handleInput(e, "newPatient")}/>
           </div>
         </div>
-            <button type="button" onClick={handleSubmit}>Submit</button>
+           
       </div>
     </FormContainer>
   );

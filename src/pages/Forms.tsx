@@ -40,11 +40,25 @@ const Forms = () => {
         setFormData={setFormData}
         handleInput={handleInput}   // optional
       />
-      <HPVScreening patientData={formData} formData={formData} setFormData={setFormData} />
-      <YourInsuranceCompany patientData={formData} formData={formData} setFormData={setFormData} />
-      <PatientPaymentAgreement formData={formData} setFormData={setFormData} />
-      <PaymentAndCollectionPolicy patientData={formData} formData={formData} setFormData={setFormData} />
-      <PrivacyPracticesForm formData={formData} setFormData={setFormData} />
+      <HPVScreening formData={formData}
+        setFormData={setFormData}
+        handleInput={handleInput} />
+
+      <YourInsuranceCompany formData={formData}
+       setFormData={setFormData} 
+       handleInput={handleInput} />
+
+      <PatientPaymentAgreement formData={formData}
+        setFormData={setFormData}
+        handleInput={handleInput} />
+
+      <PaymentAndCollectionPolicy formData={formData}
+        setFormData={setFormData}
+        handleInput={handleInput} />
+        
+      <PrivacyPracticesForm formData={formData}
+        setFormData={setFormData}
+        handleInput={handleInput} />
 
       {/* 🔥 ONE SUBMIT */}
       <div className="text-center p-10">
