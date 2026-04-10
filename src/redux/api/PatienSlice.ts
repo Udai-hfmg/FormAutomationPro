@@ -19,19 +19,37 @@ export const patientApi = createApi({
             })
         }) ,
        uploadSignature: builder.mutation({
-  query: ({ patientId, file }: { patientId: number; file: Blob }) => {
-    const formData = new FormData();
+ query: ({ patientId, file }: { patientId: number; file: Blob | string }) => {
+  const formData = new FormData();
 
-    formData.append("file", file, "signature.png"); // ✅ file
-    formData.append("patientId", patientId.toString()); // ✅ patientId
+  let finalFile: Blob;
 
-    return {
-      url: `api/Patient/upload-signature`,
-      method: "POST",
-      body: formData
-    };
+  // ✅ Case 1: already Blob
+  if (file instanceof Blob) {
+    finalFile = file;
+  } 
+  // ✅ Case 2: base64 string → convert to Blob
+  else {
+    const byteString = atob(file);
+    const byteNumbers = new Array(byteString.length);
+
+    for (let i = 0; i < byteString.length; i++) {
+      byteNumbers[i] = byteString.charCodeAt(i);
+    }
+
+    finalFile = new Blob([new Uint8Array(byteNumbers)], { type: "image/png" });
   }
-}),
+
+  formData.append("file", finalFile, "signature.png");
+  formData.append("patientId", patientId.toString());
+
+  return {
+    url: `api/Patient/upload-signature`,
+    method: "POST",
+    body: formData
+  };
+ }}),
+
        getSesionDetails:builder.query({
             query: (sessionId: string) => `api/Admin/get-session/${sessionId}`
         })

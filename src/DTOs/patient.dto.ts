@@ -22,7 +22,8 @@ export interface PatientDto {
   createdAt?: string | null;           // Readonly — set by backend
   updatedAt?: string | null;           // Readonly — set by backend
   date?: string | null  ; 
-  initials?: string;         // Readonly — set by backend
+  initials?: string;    
+  apt?: string;     // Readonly — set by backend
 }
 
 // For CREATE forms — no id or audit fields
@@ -48,5 +49,6 @@ export const defaultPatient: CreatePatientDto = {
   dateOfBirth: null,
   ssnLast4: "",
   date: null,
-  initials: ""
+  initials: "",
+  apt: "",
 };

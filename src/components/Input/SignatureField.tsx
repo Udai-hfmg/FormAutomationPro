@@ -55,15 +55,15 @@ const SignatureField = ({ className = "", onChange, name, value }: SignatureFiel
 useEffect(() => {
   if (!value || !sigCanvasRef.current) return;
 
-  const reader = new FileReader();
-
-  reader.onloadend = () => {
-    const base64 = reader.result as string;
-    sigCanvasRef.current?.fromDataURL(base64);
+  if (typeof value === "string") {
+    sigCanvasRef.current.fromDataURL(`data:image/png;base64,${value}`);
     setIsEmpty(false);
-  };
-
-  reader.readAsDataURL(value);
+  } 
+  else if (value instanceof Blob) {
+    const url = URL.createObjectURL(value);
+    sigCanvasRef.current.fromDataURL(url);
+    setIsEmpty(false);
+  }
 }, [value]);
 
   const handleBegin = (): void => {
