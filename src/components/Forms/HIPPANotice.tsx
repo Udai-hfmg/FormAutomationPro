@@ -9,7 +9,7 @@ import useFormData from "../../hooks/useFormData";
 
 
 
-const HIPAANotice = ({ formData, setFormData, handleInput }: data) => {
+const HIPAANotice = ({ formData, setFormData, handleInput }: any) => {
 
 
   const handleRadioChange = (field: string, value: "yes" | "no") => {
@@ -57,6 +57,7 @@ const HIPAANotice = ({ formData, setFormData, handleInput }: data) => {
   };
 
 
+  const hipaaList = Array.isArray(formData?.hipaa) ? formData.hipaa : [];
 
 
   // ── Reusable Yes/No radio pair — untouched ────────────────────────────────
@@ -142,22 +143,22 @@ const HIPAANotice = ({ formData, setFormData, handleInput }: data) => {
 
             {/* 3 rows — separate inputs */}
             <div className="space-y-2">
-              {formData?.hipaa?.map((item: any) => (
+              {[0 , 1, 2].map((item: any) => (
                 <div key={item.hipaaFamilyMemberId} className="flex gap-3">
                   <LineInput
                     name="familyMemberName"
                     className="flex-1"
                     placeholder="Full name"
-                    value={item.familyMemberName}
-                    onChange={(e) => handleInput(e, "hipaa")}
+                    value={formData?.hipaa?.[item]?.familyMemberName}
+                    onChange={(e) => handleInput(e, item)}
 
                   />
                   <LineInput
                     name="relationship"
                     className="flex-1"
                     placeholder="Relationship"
-                    value={item.relationship}
-                    onChange={(e) => handleInput(e, "hipaa")}
+                    value={formData?.hipaa?.[item]?.relationship}
+                    onChange={(e) => handleInput(e, item)}
                   />
                 </div>
               ))}
@@ -206,7 +207,7 @@ const HIPAANotice = ({ formData, setFormData, handleInput }: data) => {
               name="familyMemberName"
               className="flex-1"
               value={
-                formData?.hipaa?.find((x: any) => x.isRepresentative)?.familyMemberName || ""
+                hipaaList.find((x: any) => x.isRepresentative)?.familyMemberName || ""
               }
               onChange={handleRepresentative}
             />

@@ -4,7 +4,7 @@ import type { HipaaFamilyMemberDto, PatientDto, PatientProviderDto } from "../DT
 import type { InsurancePlanDto } from "../DTOs/insurance_plan"
 import type { EmergencyContactDto } from "../DTOs/emegrency"
 import type { PatientPharmacyDto } from "../DTOs/patientPharmacy"
-import { usePostPatientInfoMutation, useUploadSignatureMutation } from "../redux/api/PatienSlice"
+import { useLazyGetSesionDetailsQuery, usePostPatientInfoMutation, useUploadSignatureMutation } from "../redux/api/PatienSlice"
 import type { PatientInsuranceDto } from "../DTOs/patienDetails"
 import type { IntakePacketDto } from "../DTOs/intake_packet"
 import type { PatientOfficeDto } from "../DTOs/officeDTO"
@@ -219,9 +219,13 @@ const useFormData = () => {
     const [formData, setFormData] = useState<FinalFormData | null>(defaultFormData)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
-
+    const [patientId, setPatientId] = useState<string | null>(null)
+    const [sessionId, setSessionId] = useState<string | null>(null)
     const [postPatienForm] = usePostPatientInfoMutation()
     const [uploadSignature] = useUploadSignatureMutation()
+    const [getSessionDetails] = useLazyGetSesionDetailsQuery()
+
+    
 
     // ─────────────────────────────────────────────────────────────────────────
     // FETCH — loads existing patient from backend and maps to formData
@@ -553,18 +557,70 @@ const useFormData = () => {
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
         section: keyof FinalFormData
     ) => {
-        const { name, value } = e.target
+         const { name, value } = e.target
+        const type = e.target.type
         const checked = (e.target as HTMLInputElement).checked
-        const type = (e.target as HTMLInputElement).type
 
-        setFormData((prev: any) => ({
+    setFormData((prev: any) => {
+
+        // 🔥 SPECIAL CASE FOR HIPAA ARRAY
+        if (section === "hipaa") {
+            const updated = Array.isArray(prev.hipaa) ? [...prev.hipaa] : []
+
+            const index = 0 // ⚠️ you need to pass index dynamically
+
+            updated[index] = {
+                ...updated[index],
+                [name]: type === "checkbox" ? checked : value
+            }
+
+            return {
+                ...prev,
+                hipaa: updated
+            }
+        }
+
+        // ✅ normal case
+        return {
             ...prev,
             [section]: {
                 ...prev[section],
                 [name]: type === "checkbox" ? checked : value
             }
-        }))
+        }
+    })
     }
+
+    const handleHipaaChange = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  index: number
+) => {
+  const { name, value } = e.target;
+
+  setFormData((prev: any) => {
+    const updated = Array.isArray(prev.hipaa) ? [...prev.hipaa] : [];
+
+    // ensure row exists
+    if (!updated[index]) {
+      updated[index] = {
+        hipaaFamilyMemberId: 0,
+        familyMemberName: "",
+        relationship: "",
+        isRepresentative: false
+      };
+    }
+
+    updated[index] = {
+      ...updated[index],
+      [name]: value
+    };
+
+    return {
+      ...prev,
+      hipaa: updated
+    };
+  });
+};
 
     // ─────────────────────────────────────────────────────────────────────────
     // Section map — maps individual field names back to their parent section
@@ -577,14 +633,28 @@ const useFormData = () => {
     // On mount: read patientId from URL and load existing patient if present
     // ─────────────────────────────────────────────────────────────────────────
     useEffect(() => {
-        const patientId = new URLSearchParams(window.location.search).get("patientId")
-        console.log("Patient ID from URL:", patientId)
-
-        if (patientId) {
-            fetchFormData(patientId) // existing patient → fetch and populate
-        } else {
-            setIsLoading(false)      // new patient → show blank form immediately
+        const sessionIdParams = new URLSearchParams(window.location.search).get("token")
+        console.log("Session ID from URL:", sessionIdParams)
+        if (sessionIdParams) {
+        
+            getSessionDetails(sessionIdParams)
+                .unwrap()
+                .then((sessionData) => {
+                    console.log("Session details:", sessionData)
+                    if (sessionData?.patientId) {
+                        setPatientId(sessionData.patientId.toString())
+                        fetchFormData(sessionData.patientId.toString())
+                    } else {
+                        setIsLoading(false)
+                    }   
+                })
+                .catch((err) => {
+                    console.error("Failed to fetch session details:", err)
+                    setError(err as Error)
+                    setIsLoading(false)
+                })
         }
+
     }, [])
 
     return {
@@ -596,7 +666,8 @@ const useFormData = () => {
         setError,
         sectionMap,
         submitFormData,
-        handleInput
+        handleInput , 
+        handleHipaaChange
     }
 }
 

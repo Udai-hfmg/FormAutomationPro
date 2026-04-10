@@ -16,14 +16,7 @@ import ErrorState from '../components/UI/ErrorState'
 
 const Forms = () => {
 
-
-  const [patientId] = useSearchParams()
-
-  console.log("Patient ID from URL:", patientId.get("patientId"))
-  const patientIdParams = patientId.get("patientId")
-
-  const { formData, error, isLoading, setFormData, submitFormData, handleInput } = useFormData()
-  console.log("Data from useFormData hook:", error, isLoading)
+  const { formData, error, isLoading, setFormData, submitFormData, handleInput , handleHipaaChange } = useFormData()
 
   if (isLoading) {
     return <Loading />
@@ -48,7 +41,7 @@ const Forms = () => {
       <HIPAANotice
         formData={formData}
         setFormData={setFormData}
-        handleInput={handleInput}   // optional
+        handleInput={handleHipaaChange}   // optional
       />
       <HPVScreening formData={formData}
         setFormData={setFormData}
