@@ -24,4 +24,4 @@ export const patientApi = createApi({
     })
 })
 
-export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery } = patientApi
+export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery, useLazyGetSesionDetailsQuery } = patientApi

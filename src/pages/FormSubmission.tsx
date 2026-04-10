@@ -229,24 +229,19 @@ const FormSubmissionsTable: React.FC = () => {
     expired:   all.filter((s:any) => s.status === 'expired').length,
   }
 
-  const handleDownload = (sub: FormSubmission) => {
-    const content = [
-      `Session ID : ${sub.sessionId}`,
-      `Patient ID : ${sub.patientId}`,
-      `Sender ID  : ${sub.senderId}`,
-      `Form IDs   : ${sub.formIds}`,
-      `Status     : ${sub.status}`,
-      `Expires In : ${sub.expiresIn}`,
-      `Expires At : ${fmt(sub.expiresAt)}`,
-      `Created At : ${fmt(sub.createdAt)}`,
-    ].join('\n')
-    const blob = new Blob([content], { type: 'text/plain' })
-    const a    = document.createElement('a')
-    a.href     = URL.createObjectURL(blob)
-    a.download = `${sub.sessionId}.txt`
-    a.click()
-    URL.revokeObjectURL(a.href)
-  }
+const handleDownload = (sub: FormSubmission) => {
+  const url = `/forms?token=${sub.sessionId}`
+  const popup = window.open(url, '_blank', 'width=900,height=700')
+  if (!popup) return
+
+  popup.addEventListener('load', () => {
+    // Wait for React + data fetch to finish rendering
+    setTimeout(() => {
+      popup.focus()
+      popup.print()
+    }, 2500)          // bump up if your form is slow to load
+  })
+}
 
   // ── Column definitions ────────────────────────────────────────────────────
   const columns: ColumnDef<FormSubmission>[] = [
