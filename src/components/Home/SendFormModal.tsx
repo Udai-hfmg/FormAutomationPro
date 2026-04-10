@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, Mail, Phone, Send, CheckCircle, FileText, Building2 } from 'lucide-react'
-import {type  Form } from './FormCard'
-import {type Facility } from './FaciliyFolder'
+import { type Form } from './FormCard'
+import { type Facility } from './FaciliyFolder'
 import useFormData from '../../hooks/useFormData'
 
 const BASR_URL = import.meta.env.VITE_BASE_URL
@@ -19,28 +19,30 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
   const [patientName, setPatientName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [sendVia, setSendVia] = useState<'email' | 'sms'>('email')
+  const [sendVia, setSendVia] = useState<'email' | 'sms'>('sms')
 
-    const {formData}=useFormData()
-  
-    const patientId=formData?.patientDemographic?.patientId
-    const phoneNumber=formData?.newPatient?.phonePrimary || formData?.newPatient?.phoneAlternate || ""
+  const { formData } = useFormData()
 
-    const formLink = `${window.location.origin}/forms?patientId=${patientName}`;
+  const patientId = formData?.patientDemographic?.patientId
+  const phoneNumber = formData?.newPatient?.phonePrimary || formData?.newPatient?.phoneAlternate || ""
+
+  const formLink = `${window.location.origin}/forms?patientId=${patientName}`;
 
   const canSend = (sendVia === 'email' ? email : phone)
 
   const handleSend = async () => {
     if (!canSend) return
 
-   const  response=await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        phone,formLink , patientId:patientName})})
+        phone, formLink, patientId: patientName
+      })
+    })
     setStep('success')
-    
+
   }
 
   const handleClose = () => {
@@ -138,7 +140,7 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                     </div>
 
                     {/* Send via toggle */}
-                    <div>
+                    {/* <div>
                       <label className="block text-xs font-semibold text-gray-600 mb-1.5">Send via</label>
                       <div className="flex bg-gray-100 rounded-xl p-1">
                         {(['email', 'sms'] as const).map(opt => (
@@ -153,7 +155,7 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                           </button>
                         ))}
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Contact input */}
                     <div>

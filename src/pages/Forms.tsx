@@ -10,6 +10,8 @@ import PrivacyPracticesForm from '../components/Forms/PrivacyPracticesForm'
 import { useSearchParams } from 'react-router'
 import type { PatientDto } from '../DTOs/Patient'
 import useFormData from '../hooks/useFormData'
+import Loading from '../components/Home/Loading'
+import ErrorState from '../components/UI/ErrorState'
 
 
 const Forms = () => {
@@ -22,6 +24,14 @@ const Forms = () => {
 
   const { formData, error, isLoading, setFormData, submitFormData, handleInput } = useFormData()
   console.log("Data from useFormData hook:", error, isLoading)
+
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (error) {
+    return <ErrorState message={error.message} />
+  }
 
   return (
     <div>
