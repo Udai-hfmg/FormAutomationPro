@@ -17,6 +17,7 @@ const SignatureField = ({ className = "", onChange, name, value }: SignatureFiel
   const sigCanvasRef = useRef<SignatureCanvasType>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isEmpty, setIsEmpty] = useState<boolean>(true);
+  const [isSigned, setIsSigned] = useState<boolean>(false);
 
   // FIX: Removed the dead `canvasRef` useEffect — it was never attached to any element
 
@@ -57,6 +58,7 @@ useEffect(() => {
 
   if (typeof value === "string") {
     sigCanvasRef.current.fromDataURL(`data:image/png;base64,${value}`);
+    setIsSigned(true);
     setIsEmpty(false);
   } 
   else if (value instanceof Blob) {
@@ -89,6 +91,7 @@ useEffect(() => {
       signature: null,
     }));
     setIsEmpty(true);
+    setIsSigned(false);
     onChange?.(null); // FIX: null on clear — HIPAANotice must accept string | null
   };
 
@@ -128,8 +131,8 @@ useEffect(() => {
             minWidth={1}
             maxWidth={2.5}
             velocityFilterWeight={0.4}
-            onBegin={handleBegin}
-            onEnd={handleEnd}
+            onBegin={!isSigned ? handleBegin: undefined} // Set isSigned on first stroke
+            onEnd={isSigned ? undefined : handleEnd} // Only call onChange on first stroke end
             canvasProps={{
               style: {
                 width: "100%",
@@ -139,7 +142,8 @@ useEffect(() => {
                 top: 0,
                 left: 0,
                 zIndex: 9999,
-                touchAction: "none",
+                touchAction: isSigned ? "none" : "auto", 
+                pointerEvents: isSigned ? "none" : "auto",
               },
             }}
           />

@@ -450,6 +450,7 @@ const useFormData = () => {
             setIsLoading(true)
 
             const payload = {
+                sessionId,
                 Patient: {
                     ...formData.newPatient,
                     patientId: isNewPatient ? undefined : formData.newPatient.patientId
