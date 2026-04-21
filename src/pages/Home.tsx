@@ -13,6 +13,8 @@ import { FaEye } from 'react-icons/fa'
 import { IoIosSend } from 'react-icons/io'
 import Loading from '../components/Home/Loading'
 import ReusableTable, { type ColumnDef } from '../components/UI/SubmissionTable'
+import NYAdvanceDirective from '../components/Forms/NYAdvanceDirective'
+import { useNavigate } from "react-router-dom";
 
 // ── Column definitions ────────────────────────────────────────────────────────
 // ReusableTable uses: { key, label, render(row) }  ← no leading _ value arg
@@ -24,6 +26,7 @@ export const columns = (
   setSendModalOpen: (v: boolean) => void,
   setSelectedSingleRow: (row: any) => void,
   setSingleOpen: (v: boolean) => void,
+  navigate: (path: string) => void,
 ): ColumnDef<any>[] => [
   {
     key: 'select',
@@ -88,7 +91,9 @@ export const columns = (
       <div className="flex flex-row gap-2 items-center">
         <IconButton
           icon={<FaEye />}
-          onClick={() => setSelectedSingleRow(row)}
+          onClick={() => {setSelectedSingleRow(row)
+            navigate(row.templatePath)
+          }}
         />
         <IconButton
           icon={<IoIosSend />}
@@ -102,6 +107,7 @@ export const columns = (
   },
 ]
 
+
 // ── Home ──────────────────────────────────────────────────────────────────────
 const Home = () => {
   const [newFormModalOpen, setNewFormModalOpen] = useState(false)
@@ -111,7 +117,11 @@ const Home = () => {
   const [singleOpen, setSingleOpen]             = useState(false)
   const [selectedRows, setSelectedRows]         = useState<number[]>([])
 
+const navigate = useNavigate();
+
   const { data = [], isLoading } = useGetDocumentsQuery('documents')
+
+
 
   const handleRowSelect = (id: number) =>
     setSelectedRows(prev =>
@@ -140,14 +150,18 @@ const Home = () => {
     setSendModalOpen,
     setSelectedSingleRow,
     setSingleOpen,
+    navigate
   )
+
+  console.log('this is the template path',selectedTemplate);
+  
 
   return (
     <>
       {/* Send modals */}
       <SendFormModal
         isOpen={sendModalOpen}
-        onClose={() => setSendModalOpen(false)}
+        onClose={() => setSendModalOpen(false)}     
         templatePath={selectedTemplate}
       />
       <SendFormModal

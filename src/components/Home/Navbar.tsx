@@ -37,7 +37,7 @@ const Navbar = () => {
         <IconButton title='Home' onClick={() => navigate('/')} icon={<CiHome />} />
         <IconButton title='All Forms' onClick={() => navigate('/allforms')} icon={<VscNewFile />} />
         <IconButton title='Submissions' onClick={() => navigate('/submissions')} icon={<TbReportAnalytics />} />
-        <IconButton title='Request New form' onClick={() => { }} icon={<VscNewFile />} />
+        <IconButton title='Request New form' onClick={() => navigate('/request-form')} icon={<VscNewFile />} />
         <IconButton onClick={() => navigate(0)} icon={<FiRefreshCw />} />
       </div>
 
