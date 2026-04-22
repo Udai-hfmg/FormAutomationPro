@@ -12,6 +12,7 @@ import Login from './pages/Login/Login';
 import { AppDataProvider } from './context/AppDataContext';
 import ProtectedRoute from './components/Home/ProtectedRoute';
 import Profile from './pages/Profile';
+import SubForms from './pages/Subformss';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
           <Route path='/forms' element={<Forms />} />
           <Route path='/allforms' element={<Home />} />
           <Route path='/forms/:formIds' element={<RenderForm />} />
+          <Route path='/subforms' element={<SubForms/>}/>
         </Routes>
       </AppDataProvider>
     </>

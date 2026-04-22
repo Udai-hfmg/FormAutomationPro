@@ -4,17 +4,26 @@ import { X, User, Mail, Phone, Send, CheckCircle, FileText, Building2 } from 'lu
 import { type Form } from './FormCard'
 import { type Facility } from './FaciliyFolder'
 import useFormData from '../../hooks/useFormData'
+import SearchPatient from './SearchPatientId'
 
 const BASR_URL = import.meta.env.VITE_BASE_URL
+
+// extend File to carry templatePath
+export interface File {
+  id: string;
+  name: string;
+  templatePath?: string;   // ← add this
+}
 
 interface SendFormModalProps {
   isOpen: boolean
   onClose: () => void
-  form: Form | null
-  facility: Facility | null
+  form?: Form | null
+  facility?: File[] | File | null , 
+  showCaution?:boolean
 }
 
-const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, facility }) => {
+const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, facility, showCaution }) => {
   const [step, setStep] = useState<'compose' | 'success'>('compose')
   const [patientName, setPatientName] = useState('')
   const [email, setEmail] = useState('')
@@ -31,18 +40,35 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
   const canSend = (sendVia === 'email' ? email : phone)
 
   const handleSend = async () => {
-    if (!canSend) return
+  if (!canSend) return;
 
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+  // build comma-separated formLinks from selected files' templatePaths
+  const formLinks = Array.isArray(facility)
+    ? facility.map(f => f.templatePath).join(',')
+    : facility?.templatePath;
 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone, formLink, patientId: patientName
-      })
-    })
-    setStep('success')
+  const facilityNames = Array.isArray(facility)
+    ? facility.map(f => f.name).join(',')
+    : facility?.name;
 
+    console.log("this is forms id" , formLinks)
+
+  await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone,
+      formLink: formLinks,      // ← now carries all selected form paths
+      patientId: patientName,
+      facilityId: facilityNames,
+    }),
+  });
+
+  setStep('success');
+};
+
+  const handlePhoneNumber = (phone:string)=>{
+    setPhone(phone)
   }
 
   const handleClose = () => {
@@ -112,16 +138,39 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                     className="p-6 space-y-4"
                   >
                     {/* Form info pill */}
-                    <div className="flex items-center gap-3 px-3.5 py-3 rounded-xl border"
-                      style={{ backgroundColor: 'rgba(26,92,56,0.04)', borderColor: 'rgba(26,92,56,0.15)' }}>
-                      <FileText size={14} color="#1a5c38" className="flex-shrink-0" />
-                      <div className="min-w-0">
+                    <div className="space-y-2">
+                      {Array.isArray(facility) ? (
+                      <>
+                        {facility.slice(0, 4).map((fac, idx) => (
+                        <div key={idx} className="flex items-center gap-3 px-3.5 py-3 rounded-xl border"
+                          style={{ backgroundColor: 'rgba(26,92,56,0.04)', borderColor: 'rgba(26,92,56,0.15)' }}>
+                          <FileText size={14} color="#1a5c38" className="flex-shrink-0" />
+                          <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-700 truncate">{form?.name}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Building2 size={11} className="text-gray-400" />
+                            <p className="text-xs text-gray-400 truncate">{fac.name}</p>
+                          </div>
+                          </div>
+                        </div>
+                        ))}
+                        {facility.length > 4 && (
+                        <p className="text-xs text-gray-500 px-3.5">+{facility.length - 4} more</p>
+                        )}
+                      </>
+                      ) : (
+                      <div className="flex items-center gap-3 px-3.5 py-3 rounded-xl border"
+                        style={{ backgroundColor: 'rgba(26,92,56,0.04)', borderColor: 'rgba(26,92,56,0.15)' }}>
+                        <FileText size={14} color="#1a5c38" className="flex-shrink-0" />
+                        <div className="min-w-0">
                         <p className="text-xs font-semibold text-gray-700 truncate">{form?.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Building2 size={11} className="text-gray-400" />
-                          <p className="text-xs text-gray-400 truncate">{facility?.officeName}</p>
+                          <p className="text-xs text-gray-400 truncate">{facility?.name}</p>
+                        </div>
                         </div>
                       </div>
+                      )}
                     </div>
 
                     {/* Patient name */}
@@ -129,14 +178,16 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                       <label className="block text-xs font-semibold text-gray-600 mb-1.5">Patient Id</label>
                       <div className="relative">
                         <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)}
-                          placeholder="PatientId"
-                          className={`${inputClass} pl-9 pr-4`}
-                          style={{ borderColor: patientName ? 'rgba(26,92,56,0.4)' : undefined }}
-                          onFocus={e => (e.target.style.borderColor = '#1a5c38')}
-                          onBlur={e => (e.target.style.borderColor = patientName ? 'rgba(26,92,56,0.4)' : '#e5e7eb')}
-                        />
+                     <SearchPatient id={patientName} setPatientId={setPatientName} setPhone={handlePhoneNumber} />
                       </div>
+                    </div>
+
+                    <div className='bg-gray-100 p-4 rounded-xl'>
+                        <ul className='text-sm text-gray-500 list-disc list-inside space-y-1'>
+                        <li>For new patients: Patient ID is not required</li>
+                        <li>For new patient registation form must be added</li>
+                        <li>For existing patients: Add patient ID</li>
+                        </ul>
                     </div>
 
                     {/* Send via toggle */}

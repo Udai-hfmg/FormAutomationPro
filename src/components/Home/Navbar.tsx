@@ -35,7 +35,7 @@ const Navbar = () => {
 
       <div className='flex flex-row gap-3'>
         <IconButton title='Home' onClick={() => navigate('/')} icon={<CiHome />} />
-        <IconButton title='All Forms' onClick={() => navigate('/allforms')} icon={<VscNewFile />} />
+        <IconButton title='Manage forms' onClick={() => navigate('/allforms')} icon={<VscNewFile />} />
         <IconButton title='Submissions' onClick={() => navigate('/submissions')} icon={<TbReportAnalytics />} />
         <IconButton title='Request New form' onClick={() => { }} icon={<VscNewFile />} />
         <IconButton onClick={() => navigate(0)} icon={<FiRefreshCw />} />

@@ -256,7 +256,7 @@ const FacilityFolders: React.FC = () => {
         isOpen={!!sendModal}
         onClose={() => setSendModal(null)}
         form={sendModal?.form ?? null}
-        facility={sendModal?.facility ?? null}
+        // facility={sendModal?.facility ?? null} 
       />
     </div>
   );

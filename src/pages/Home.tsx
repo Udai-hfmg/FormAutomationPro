@@ -6,13 +6,14 @@ import SearchInput from '../components/UI/SearchInput'
 import { Modal } from '../components/Home/Modal'
 import NewFormModal from '../components/Home/NewFormModal'
 import { useGetDocumentsQuery } from '../redux/api/DocumentSlice'
-import SendFormModal from '../components/Forms/SendFormModal'
+import SendFormModal from '../components/Home/SendFormModal'
 import FloatingActionBar from '../components/Home/FloatingActionBar'
 import IconButton from '../components/UI/IconButton'
 import { FaEye } from 'react-icons/fa'
 import { IoIosSend } from 'react-icons/io'
 import Loading from '../components/Home/Loading'
 import ReusableTable, { type ColumnDef } from '../components/UI/SubmissionTable'
+import ArchiveFormModal from '../components/Home/ArcheiveFormModal'
 
 // ── Column definitions ────────────────────────────────────────────────────────
 // ReusableTable uses: { key, label, render(row) }  ← no leading _ value arg
@@ -110,6 +111,7 @@ const Home = () => {
   const [selectedSingleRow, setSelectedSingleRow] = useState<any>(null)
   const [singleOpen, setSingleOpen]             = useState(false)
   const [selectedRows, setSelectedRows]         = useState<number[]>([])
+  const [onArchiveOpen , setOnArchiveOpen] = useState(false)
 
   const { data = [], isLoading } = useGetDocumentsQuery('documents')
 
@@ -142,28 +144,43 @@ const Home = () => {
     setSingleOpen,
   )
 
+  function onArche(){
+    setOnArchiveOpen(!onArchiveOpen)
+  }
+
   return (
     <>
       {/* Send modals */}
       <SendFormModal
-        isOpen={sendModalOpen}
-        onClose={() => setSendModalOpen(false)}
-        templatePath={selectedTemplate}
-      />
-      <SendFormModal
+  isOpen={sendModalOpen}
+  onClose={() => setSendModalOpen(false)}
+  facility={
+    data
+      .filter((row: any) => selectedRows.includes(row.documentVersionId))
+      .map((row: any) => ({
+        id: String(row.documentVersionId),
+        name: row.versionLabel ?? String(row.documentVersionId),
+        templatePath: row.templatePath,   // ← carry templatePath through
+      }))
+  }
+/>
+      {/* <SendFormModal
         isOpen={singleOpen}
         onClose={() => setSingleOpen(false)}
-        templatePath={singleOpen ? selectedSingleRow?.templatePath : ''}
-      />
+        // templatePath={singleOpen ? selectedSingleRow?.templatePath : ''}
+      /> */}
+
+      <ArchiveFormModal isOpen={onArchiveOpen} onClose={onArche}/>
 
       {/* Floating action bar */}
       {selectedRows.length > 0 && (
         <FloatingActionBar
           selectedCount={selectedRows.length}
-          onArchive={() => console.log('archive', selectedRows)}
+          onArchive={() =>onArche()}
           onDelete={() => console.log('delete', selectedRows)}
           onSend={handleSend}
           onClear={() => setSelectedRows([])}
+          
         />
       )}
 
@@ -192,10 +209,10 @@ const Home = () => {
               className="text-2xl font-black tracking-tight"
               style={{ color: '#1a5c38' }}
             >
-              Form Submissions
+              Manage files and folders
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Track and manage all patient form sessions
+              Send and create new form with existing files
             </p>
           </motion.div>
 

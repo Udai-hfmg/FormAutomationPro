@@ -3,48 +3,56 @@
     "name": "Patient email contact form",
     "link": "email-capture-form",
     "id": "patient-email-contact-form",
-    "registry": "email-capture"
+    "registry": "email-capture",
+    "newPatient": false
   },
   {
     "name": "New patient intake form",
     "link": "new-patient-form",
     "id": "patient-intake",
-    "registry": "patient-intake"
+    "registry": "patient-intake",
+    "newPatient": true
   },
   {
     "name": "HIPAA Checklist",
     "link": "hipaa-checklist-form",
     "id": "hipaa-checklist",
-    "registry": "hipaa-checklist"
+    "registry": "hipaa-checklist",
+    "newPatient": false
   },
   {
     "name": "Patient Payment Agreement",
     "link": "payment-agreement-form",
     "id": "payment-agreement",
-    "registry": "payment-agreement"
+    "registry": "payment-agreement",
+    "newPatient": false
   },
   {
     "name": "HPV Screening Consent",
     "link": "hpv-screening-consent-form",
     "id": "hpv-screening-consent",
-    "registry": "hpv-screening-consent"
+    "registry": "hpv-screening-consent",
+    "newPatient": false
   },
   {
     "name": "Insurance Information",
     "link": "insurance-information-form",
     "id": "insurance-information",
-    "registry": "insurance-information"
+    "registry": "insurance-information",
+    "newPatient": false
   },
   {
     "name": "Patient Collection Policy",
     "link": "patient-collection-policy-form",
     "id": "patient-collection-policy",
-    "registry": "patient-collection-policy"
+    "registry": "patient-collection-policy",
+    "newPatient": false
   },
   {
     "name": "Privacy Practices Form",
     "link": "privacy-practices-form",
     "id": "privacy-practices",
-    "registry": "privacy-practices"
+    "registry": "privacy-practices",
+    "newPatient": false
   }
 ]
