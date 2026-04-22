@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLazyGetSesionDetailsQuery } from "../redux/api/PatienSlice";
 import { formRegistry } from "../Registry/formRegistry";
+import useFormData from "../hooks/useFormData";
 
 interface SessionDetails {
   sessionId: string;
@@ -23,6 +24,11 @@ export default function SubForms() {
   const [completedForms, setCompletedForms] = useState<string[]>([]);
 
   const [getSessionDetails, { isLoading }] = useLazyGetSesionDetailsQuery();
+
+  // add this right after the token line
+const isPreview = searchParams.get("preview") === "true";
+
+  const {submitFormData} = useFormData()
 
   useEffect(() => {
     async function getSession() {
@@ -48,7 +54,10 @@ export default function SubForms() {
   const validFormIds   = formIds.filter((id) => id in formRegistry);
   const invalidFormIds = formIds.filter((id) => !(id in formRegistry));
   const totalForms     = validFormIds.length;
-  const isExpired      = session ? new Date(session.expiresAt) < new Date() : false;
+  // skip expiry check entirely in preview mode
+const isExpired = !isPreview && session
+  ? session.status !== 2 && new Date(session.expiresAt) < new Date()
+  : false;
 
   function handleFormComplete(formId: string) {
     setCompletedForms((prev) => [...prev, formId]);
@@ -179,113 +188,59 @@ export default function SubForms() {
   const currentFormId = validFormIds[currentIndex];
   const CurrentFormComponent = formRegistry[currentFormId];
 
+ // ── Render all forms ──────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* ── Top progress bar ── */}
-      {session && (
-        <div className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      {/* ── Preview banner ── */}
+      
 
-            {/* Branding */}
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#1d5c3a] flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <span className="text-xs font-bold text-gray-700 hidden sm:block">Patient Forms</span>
-            </div>
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
-            {/* Step pills */}
-            <div className="flex items-center gap-1.5">
-              {validFormIds.map((id, idx) => (
-                <div
-                  key={id}
-                  className={`h-2 rounded-full transition-all duration-300
-                    ${idx < currentIndex || completedForms.includes(id)
-                      ? "bg-[#1d5c3a] w-5"
-                      : idx === currentIndex
-                      ? "bg-[#1d5c3a]/60 w-5"
-                      : "bg-gray-200 w-2"
-                    }`}
-                />
-              ))}
-            </div>
-
-            {/* Counter */}
-            <span className="text-xs font-semibold text-gray-500">
-              {currentIndex + 1} / {totalForms}
-            </span>
-          </div>
-
-          {/* Thin progress fill */}
-          <div className="h-0.5 bg-gray-100">
+        {validFormIds.map((formId, idx) => {
+          const FormComponent = formRegistry[formId];
+          return (
             <motion.div
-              className="h-full bg-[#1d5c3a]"
-              initial={{ width: 0 }}
-              animate={{ width: `${((currentIndex) / totalForms) * 100}%` }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ── Form area ── */}
-      <div className="max-w-2xl mx-auto px-4 py-6">
-
-        {/* Form label */}
-        <motion.div
-          key={currentFormId + "-label"}
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 flex items-center gap-2"
-        >
-          <span className="text-xs font-semibold text-[#1d5c3a] bg-[#1d5c3a]/10
-                           px-2.5 py-1 rounded-full">
-            Step {currentIndex + 1} of {totalForms}
-          </span>
-          <span className="text-xs text-gray-400 font-mono">{currentFormId}</span>
-        </motion.div>
-
-        {/* Animated form swap */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentFormId}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {CurrentFormComponent ? (
-              <CurrentFormComponent
+              key={formId}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.08, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden
+                          ${isPreview ? "pointer-events-none select-none opacity-80" : ""}`}
+            >
+              <FormComponent
                 patientId={session?.patientId}
                 sessionId={session?.sessionId}
-                onComplete={() => handleFormComplete(currentFormId)}
               />
-            ) : (
-              // per-form not-found fallback (shouldn't happen since we pre-filter, safety net)
-              <div className="bg-white rounded-2xl border border-red-100 p-8 text-center">
-                <p className="text-sm text-red-400 font-medium">
-                  Form <span className="font-mono">{currentFormId}</span> could not be loaded.
-                </p>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          );
+        })}
 
-        {/* Invalid form IDs warning */}
-        {invalidFormIds.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3"
+        {/* ── Submit button — hidden in preview ── */}
+        {!isPreview && (
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => submitFormData()}
+            className="w-full py-3 rounded-2xl text-sm font-bold text-white
+                       bg-[#1d5c3a] hover:bg-[#174d30] shadow-md shadow-[#1d5c3a]/20
+                       flex items-center justify-center gap-2 transition-all duration-200"
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            Submit All Forms
+          </motion.button>
+        )}
+
+        {invalidFormIds.length > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
             <p className="text-xs font-semibold text-amber-700 mb-0.5">Some forms could not be found</p>
             <p className="text-xs text-amber-600 font-mono">{invalidFormIds.join(", ")}</p>
-          </motion.div>
+          </div>
         )}
+
       </div>
     </div>
   );

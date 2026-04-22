@@ -9,8 +9,9 @@ import useFormData from "../../hooks/useFormData";
 
 
 
-const HIPAANotice = ({ formData, setFormData, handleInput }: any) => {
+const HIPAANotice = () => {
 
+  const { formData, error, isLoading, setFormData, submitFormData, handleInput, handleHipaaChange } = useFormData()
 
   const handleRadioChange = (field: string, value: "yes" | "no") => {
     setFormData((prev: any) => ({
@@ -182,22 +183,21 @@ const HIPAANotice = ({ formData, setFormData, handleInput }: any) => {
 
             {/* 3 rows — separate inputs */}
             <div className="space-y-2">
-              {[0, 1, 2].map((item: any) => (
-                <div key={item.hipaaFamilyMemberId} className="flex gap-3">
+              {[0, 1, 2].map((_, index) => (
+                <div key={index} className="flex gap-3">
                   <LineInput
                     name="familyMemberName"
                     className="flex-1"
                     placeholder="Full name"
-                    value={formData?.hipaa?.[item]?.familyMemberName}
-                    onChange={(e) => handleInput(e, item)}
-
+                    value={formData?.hipaa?.[index]?.familyMemberName ?? ""}
+                    onChange={(e) => handleHipaaChange(e, index)}
                   />
                   <LineInput
                     name="relationship"
                     className="flex-1"
                     placeholder="Relationship"
-                    value={formData?.hipaa?.[item]?.relationship}
-                    onChange={(e) => handleInput(e, item)}
+                    value={formData?.hipaa?.[index]?.relationship ?? ""}
+                    onChange={(e) => handleHipaaChange(e, index)}
                   />
                 </div>
               ))}
