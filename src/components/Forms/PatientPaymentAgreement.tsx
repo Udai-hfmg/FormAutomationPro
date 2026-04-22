@@ -4,10 +4,12 @@ import HeaderImage from "../UI/HeaderImage";
 import LineInput, { type data } from "../Input/FormInput";
 import type { PatientData } from "../Input/PatientData";
 import SignatureField from "../Input/SignatureField";
+import useFormData from "../../hooks/useFormData";
 
 
-const PatientPaymentAgreement = ({formData, setFormData, handleInput}:data) => {
+const PatientPaymentAgreement = () => {
 
+  const { formData, error, isLoading, setFormData, submitFormData, handleInput , handleHipaaChange } = useFormData()
 
   return (
     <FormContainer>
@@ -112,7 +114,7 @@ const PatientPaymentAgreement = ({formData, setFormData, handleInput}:data) => {
         <div className="flex flex-col sm:flex-row sm:items-end gap-6 mt-10">
           <div className="flex items-end gap-2 w-full">
             <label className="whitespace-nowrap text-xs sm:text-sm">Signature of patient or responsible party</label>
-             <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+             <SignatureField className="flex-1" value={formData?.signature instanceof Blob ? formData.signature : null} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
           </div>
           <div className="flex items-end gap-2 w-full sm:w-56">
             <label className="whitespace-nowrap text-xs sm:text-sm">Date</label>

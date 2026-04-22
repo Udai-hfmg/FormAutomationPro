@@ -110,7 +110,7 @@ const SubmissionPreviewModal: React.FC<{
   }
 
   const previewLink = submission
-    ? `/forms?token=${submission.sessionId}`
+    ? `/subforms?token=${submission.sessionId}&preview=true`
     : ''
 
   return (
@@ -230,7 +230,7 @@ const FormSubmissionsTable: React.FC = () => {
   }
 
 const handleDownload = (sub: FormSubmission) => {
-  const url = `/forms?token=${sub.sessionId}`
+  const url = `/subforms?token=${sub.sessionId}&preview=true`
   const popup = window.open(url, '_blank', 'width=900,height=700')
   if (!popup) return
 

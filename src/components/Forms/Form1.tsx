@@ -165,6 +165,7 @@ import FormContainer from '../UI/FormContainer'
 import type { PatientDataProps } from '../Input/PatientData'
 import { useSearchParams } from 'react-router'
 import type { data } from '../Input/FormInput'
+import useFormData from '../../hooks/useFormData'
 
 
 function HeaderTitles() {
@@ -178,7 +179,9 @@ function HeaderTitles() {
 }
 
 
-const Form1 = ({ formData, setFormData, handleInput }: data) => {
+const Form1 = () => {
+
+  const { formData, error, isLoading, setFormData, submitFormData, handleInput , handleHipaaChange } = useFormData()
 
     const [facility, setFacility] = useState(null)
 

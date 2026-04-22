@@ -16,6 +16,7 @@ import SubForms from './pages/Subformss';
 import NewFormModal from './components/Home/NewFormModal';
 import RequestFormPage from './pages/RequestFormPage';
 import NYAdvanceDirective from './components/Forms/NYAdvanceDirective';
+import { FormDataProvider } from './hooks/useFormData';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
 
 
       <AppDataProvider>
+        <FormDataProvider>
         <Toaster />
         <Routes>
           {/* Public routes */}
@@ -48,6 +50,7 @@ function App() {
           <Route path='/forms/:formIds' element={<RenderForm />} />
           <Route path='/subforms' element={<SubForms/>}/>
         </Routes>
+        </FormDataProvider>
       </AppDataProvider>
     </>
   )

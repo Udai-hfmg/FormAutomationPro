@@ -15,7 +15,7 @@ import Loading from '../components/Home/Loading'
 import ReusableTable, { type ColumnDef } from '../components/UI/SubmissionTable'
 import ArchiveFormModal from '../components/Home/ArcheiveFormModal'
 import NYAdvanceDirective from '../components/Forms/NYAdvanceDirective'
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 // ── Column definitions ────────────────────────────────────────────────────────
 // ReusableTable uses: { key, label, render(row) }  ← no leading _ value arg

@@ -4,6 +4,7 @@ import HeaderImage from "../UI/HeaderImage";
 
 import type { data } from "../Input/FormInput";
 import SignatureField from "../Input/SignatureField";
+import useFormData from "../../hooks/useFormData";
 
 type LineInputProps = {
   className?: string;
@@ -23,7 +24,9 @@ const LineInput = ({ className = "", type, name, value, onChange }: LineInputPro
   />
 );
 
-const NewPatientForm = ({formData,setFormData,handleInput}:data) => {
+const NewPatientForm = () => {
+
+  const { formData, error, isLoading, setFormData, submitFormData, handleInput , handleHipaaChange } = useFormData()
 
 console.log('formData in NewPatientForm', formData)
 
@@ -258,7 +261,7 @@ console.log('formData in NewPatientForm', formData)
 
           <div className="flex items-end gap-2 flex-1">
             <label>SIGNATURE</label>
-           <SignatureField className="flex-1"   value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+           <SignatureField className="flex-1"   value={typeof formData?.signature === 'string' ? null : formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
           </div>
 
           <div className="flex items-end gap-2 w-48">

@@ -30,38 +30,22 @@ const Forms = () => {
     <div>
 
       {/* EMAIL FETCH */}
-      <Form1 formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <Form1  />
 
       {/* ALL FORMS */}
-      <NewPatientForm formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <NewPatientForm />
       <HIPAANotice
-        formData={formData}
-        setFormData={setFormData}
-        handleInput={handleHipaaChange}   // optional
+         // optional
       />
-      <HPVScreening formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <HPVScreening />
 
-      <YourInsuranceCompany formData={formData}
-       setFormData={setFormData} 
-       handleInput={handleInput} />
+      <YourInsuranceCompany  />
 
-      <PatientPaymentAgreement formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <PatientPaymentAgreement  />
 
-      <PaymentAndCollectionPolicy formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <PaymentAndCollectionPolicy  />
         
-      <PrivacyPracticesForm formData={formData}
-        setFormData={setFormData}
-        handleInput={handleInput} />
+      <PrivacyPracticesForm />
 
       {/* 🔥 ONE SUBMIT */}
       <div className="text-center p-10">
