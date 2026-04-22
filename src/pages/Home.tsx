@@ -14,6 +14,8 @@ import { IoIosSend } from 'react-icons/io'
 import Loading from '../components/Home/Loading'
 import ReusableTable, { type ColumnDef } from '../components/UI/SubmissionTable'
 import ArchiveFormModal from '../components/Home/ArcheiveFormModal'
+import NYAdvanceDirective from '../components/Forms/NYAdvanceDirective'
+import { useNavigate } from "react-router-dom";
 
 // ── Column definitions ────────────────────────────────────────────────────────
 // ReusableTable uses: { key, label, render(row) }  ← no leading _ value arg
@@ -25,6 +27,7 @@ export const columns = (
   setSendModalOpen: (v: boolean) => void,
   setSelectedSingleRow: (row: any) => void,
   setSingleOpen: (v: boolean) => void,
+  navigate: (path: string) => void,
 ): ColumnDef<any>[] => [
   {
     key: 'select',
@@ -89,7 +92,9 @@ export const columns = (
       <div className="flex flex-row gap-2 items-center">
         <IconButton
           icon={<FaEye />}
-          onClick={() => setSelectedSingleRow(row)}
+          onClick={() => {setSelectedSingleRow(row)
+            navigate(row.templatePath)
+          }}
         />
         <IconButton
           icon={<IoIosSend />}
@@ -103,6 +108,7 @@ export const columns = (
   },
 ]
 
+
 // ── Home ──────────────────────────────────────────────────────────────────────
 const Home = () => {
   const [newFormModalOpen, setNewFormModalOpen] = useState(false)
@@ -113,7 +119,11 @@ const Home = () => {
   const [selectedRows, setSelectedRows]         = useState<number[]>([])
   const [onArchiveOpen , setOnArchiveOpen] = useState(false)
 
+const navigate = useNavigate();
+
   const { data = [], isLoading } = useGetDocumentsQuery('documents')
+
+
 
   const handleRowSelect = (id: number) =>
     setSelectedRows(prev =>
@@ -142,6 +152,7 @@ const Home = () => {
     setSendModalOpen,
     setSelectedSingleRow,
     setSingleOpen,
+    navigate
   )
 
   function onArche(){

@@ -13,6 +13,9 @@ import { AppDataProvider } from './context/AppDataContext';
 import ProtectedRoute from './components/Home/ProtectedRoute';
 import Profile from './pages/Profile';
 import SubForms from './pages/Subformss';
+import NewFormModal from './components/Home/NewFormModal';
+import RequestFormPage from './pages/RequestFormPage';
+import NYAdvanceDirective from './components/Forms/NYAdvanceDirective';
 
 
 function App() {
@@ -36,6 +39,8 @@ function App() {
             <Route path='/profile' element={<Profile />} />
 
             <Route path='/submissions' element={<FormSubmissionsTable />} />
+            <Route path='/request-form' element={<RequestFormPage />} />
+            <Route path='/acp' element={<NYAdvanceDirective />} />
           </Route>
 
           <Route path='/forms' element={<Forms />} />

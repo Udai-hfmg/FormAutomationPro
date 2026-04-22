@@ -25,6 +25,18 @@ const SAMPLE_FORMS: Form[] = [
 
     link: "/preview",
   },
+   {
+    id: "f1-2",
+
+    name: "ACP Forms",
+
+    description:
+      "These Acp forms are for the patients to make the decision about what kinf of treatment they are getting and all the details will be here in this ACP Forms.",
+
+    category: "Intake",
+
+    link: "/acp",
+  },
 ];
 
 // ── Component ──────────────────────────────────────────────────────────────────
