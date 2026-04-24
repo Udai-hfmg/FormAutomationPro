@@ -66,7 +66,7 @@ export default function Dropdown({
                 aria-expanded={open}
                 disabled={disabled}
                 onClick={() => !disabled && setOpen((s) => !s)}
-                className={`w-full text-left px-2.5 py-2 border-2 rounded-md bg-white border-gray-400 focus:outline-none ${
+                className={`w-full text-left px-2.5 py-2 border-2 rounded-md bg-white border-gray-200 focus:outline-none ${
                     disabled ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
             >

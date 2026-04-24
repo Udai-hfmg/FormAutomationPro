@@ -54,5 +54,11 @@
     "id": "privacy-practices",
     "registry": "privacy-practices",
     "newPatient": false
+  } , {
+    "name": "NY Directory of Healthcare Facilities Form",
+    "link": "ny-directory-healthcare-facilities-form",
+    "id": "ny-directory-healthcare-facilities",
+    "registry": "ACP-forms",
+    "newPatient": false
   }
 ]

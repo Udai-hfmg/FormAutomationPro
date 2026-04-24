@@ -7,7 +7,7 @@ interface FormPreviewModalProps {
   isOpen: boolean
   onClose: () => void
   form: Form | null
-  onSend: (form: Form) => void
+  onSend?: (form: Form) => void
 }
 
 const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, form, onSend }) => {
@@ -21,7 +21,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
 
   const handleSendFromPreview = () => {
     handleClose()
-    if (form) onSend(form)
+    if (form && onSend) onSend(form)
   }
 
   return (
@@ -84,7 +84,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   </a>
 
                   {/* Send from preview */}
-                  <button
+                  {onSend  && <button
                     onClick={handleSendFromPreview}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
                     style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
@@ -93,7 +93,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   >
                     <Send size={12} />
                     Send
-                  </button>
+                  </button>}
 
                   {/* Close */}
                   <button
@@ -199,7 +199,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   >
                     Close
                   </button>
-                  <button
+                  {onSend &&<button
                     onClick={handleSendFromPreview}
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-colors duration-150"
                     style={{ backgroundColor: '#1a5c38' }}
@@ -208,7 +208,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   >
                     <Send size={12} />
                     Send to Patient
-                  </button>
+                  </button>}
                 </div>
               </div>
             </div>

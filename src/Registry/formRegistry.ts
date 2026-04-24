@@ -2,6 +2,7 @@ import Form1 from "../components/Forms/Form1";
 import HIPAANotice from "../components/Forms/HIPPANotice";
 import HPVScreening from "../components/Forms/HPVScreening";
 import NewPatientForm from "../components/Forms/NewPatientForm";
+import NYAdvanceDirective from "../components/Forms/NYAdvanceDirective";
 import PatientPaymentAgreement from "../components/Forms/PatientPaymentAgreement";
 import PaymentAndCollectionPolicy from "../components/Forms/PaymentAndCollectionPolicy";
 import PrivacyPracticesForm from "../components/Forms/PrivacyPracticesForm";
@@ -15,5 +16,6 @@ export const formRegistry: Record<string, React.ComponentType<any>> = {
   "hpv-screening-consent": HPVScreening,
   "insurance-information": YourInsuranceCompany,
   "patient-collection-policy": PaymentAndCollectionPolicy,
-  "privacy-practices": PrivacyPracticesForm
+  "privacy-practices": PrivacyPracticesForm , 
+  "ACP-forms":NYAdvanceDirective
 };
