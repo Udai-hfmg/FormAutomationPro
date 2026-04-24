@@ -7,6 +7,9 @@ export const documentApi = createApi({
     reducerPath:"documentApi",
     baseQuery:fetchBaseQuery({baseUrl:BASR_URL}),
     endpoints:(builder)=>({
+        getDocumentTypes:builder.query({
+            query:()=>"api/DocumentType"
+        }),
         getDocuments:builder.query({
             query:()=>"api/DocumentTypeVersion"
         }) , 
@@ -23,4 +26,4 @@ export const documentApi = createApi({
     })
 })
 
-export const {useGetDocumentsQuery, usePostDocumentVersionMutation, useGetSubmissionDocumentQuery}  = documentApi
+export const {useGetDocumentsQuery, usePostDocumentVersionMutation, useGetSubmissionDocumentQuery, useGetDocumentTypesQuery}  = documentApi

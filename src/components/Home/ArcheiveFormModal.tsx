@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import SearchFacility from "./SearchFacility";
+import { useGetDocumentsQuery, useGetDocumentTypesQuery } from "../../redux/api/DocumentSlice";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Form {
@@ -56,23 +57,47 @@ const fieldVariants : Variants= {
 export default function ArchiveFormModal({
   isOpen,
   onClose,
+  forms
 }: {
   isOpen: boolean;
   onClose: () => void;
+  forms: any;
 }) {
   const [label, setLabel] = useState("");
-
+  console.log("this is forms data" , forms)
   // forms
-  const [selectedForms, setSelectedForms] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedForms, setSelectedForms] = useState<any>([1, 2, 3, 4]);
   const [expanded, setExpanded] = useState(false);
 
   // facilities multi-select
   const [facilityQuery, setFacilityQuery] = useState("");
-  const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
+  const [selectedFacilities, setSelectedFacilities] = useState<any>([]);
   const [showFacilityDrop, setShowFacilityDrop] = useState(false);
   const facilityRef = useRef<HTMLDivElement>(null);
 
   const PREVIEW_COUNT = 3;
+
+  const {data , isLoading , isError} = useGetDocumentsQuery("documents");
+  
+
+  // for getting for details 
+  useEffect(()=>{
+    if(forms.length > 0 && data){
+      console.log("data from api" , data)
+      setSelectedForms(data.filter((d:any) => forms.includes(d.documentVersionId)))
+    }
+    
+  }, [forms])
+
+  console.log("selected forms in modal" , selectedForms)
+
+  const mappedForms = selectedForms.map((f: any) => ({
+  id: f.documentVersionId,
+  label: f.versionLabel,
+  sub: f.documentType?.name,
+  date: f.retiredDate ? new Date(f.retiredDate).toDateString() : "No date",
+  status: f.retiredDate ? "completed" : "pending" // or your logic
+}));
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -96,17 +121,19 @@ export default function ArchiveFormModal({
   }
 
   function toggleForm(id: number) {
-    setSelectedForms((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  }
+  setSelectedForms((prev:any[]) =>
+    prev.some(f => f.documentVersionId === id)
+      ? prev.filter(f => f.documentVersionId !== id)
+      : [...prev, data.find((d:any) => d.documentVersionId === id)]
+  );
+}
 
   function removeFacility(id: number) {
     setSelectedFacilities((prev) => prev.filter((x) => x !== id));
   }
 
-  const visibleForms = expanded ? ALL_FORMS : ALL_FORMS.slice(0, PREVIEW_COUNT);
-  const hiddenCount = ALL_FORMS.length - PREVIEW_COUNT;
+  const visibleForms = expanded ? mappedForms : mappedForms.slice(0, PREVIEW_COUNT);
+const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length - PREVIEW_COUNT : 0;
   const isValid = label.trim() && selectedForms.length > 0 && selectedFacilities.length > 0;
 
   return (
@@ -194,7 +221,7 @@ export default function ArchiveFormModal({
                   <div className="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                     <AnimatePresence initial={false}>
                       {visibleForms.map((form, idx) => {
-                        const isChecked = selectedForms.includes(form.id);
+                        const isChecked = selectedForms.some((f:any) => f.documentVersionId === form.id);
                         return (
                           <motion.div
                             key={form.id}
