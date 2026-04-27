@@ -19,12 +19,12 @@ interface SendFormModalProps {
   isOpen: boolean
   onClose: () => void
   form?: Form | null
-  facility?: File[] | File | null , 
+  facility?: File[] | File | null
   showCaution?:boolean
 }
 
 const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, facility, showCaution }) => {
-  const [step, setStep] = useState<'compose' | 'success'>('compose')
+  const [step, setStep] = useState<'compose' | 'success' | 'error'>('compose')
   const [patientName, setPatientName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -41,6 +41,8 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
 
   const handleSend = async () => {
   if (!canSend) return;
+  console.log('facility',facility);
+  
 
   // build comma-separated formLinks from selected files' templatePaths
   const formLinks = Array.isArray(facility)
@@ -52,17 +54,30 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
     : facility?.name;
 
     console.log("this is forms id" , formLinks)
+    // 👇 Add this to see exactly what's being sent
+  console.log({ phone, formLinks, patientName });
 
-  await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+  if (!formLinks) {
+    alert('No form template paths found. Check that facility items have templatePath set.');
+    return;
+  }
+
+   const send= await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      phone,
-      formLink: formLinks,      // ← now carries all selected form paths
-      patientId: patientName,
-      facilityId: facilityNames,
+      PhoneNumber:phone,
+      FormUrl:formLinks,      // ← now carries all selected form paths
+      PatientId: patientName,
+      FacilityId: facilityNames,
     }),
   });
+  console.log('this is the status',send);
+  
+  if(!send){
+    setStep('error')
+  }
+console.log(step);
 
   setStep('success');
 };

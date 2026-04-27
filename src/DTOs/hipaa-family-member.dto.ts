@@ -15,6 +15,7 @@ export type CreateHipaaFamilyMemberDto = Omit<HipaaFamilyMemberDto, "hipaaFamily
 export type UpdateHipaaFamilyMemberDto = Partial<CreateHipaaFamilyMemberDto> & { hipaaFamilyMemberId: number };
 
 export const defaultHipaaFamilyMember: CreateHipaaFamilyMemberDto = {
+
   signedDocumentId: 0,
   familyMemberName: "",
   relationship: "",

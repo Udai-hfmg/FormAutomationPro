@@ -30,6 +30,10 @@ export interface FinalFormData {
     signature?: Blob | null | string
 }
 
+interface SignatureMeta {
+    signatureVersion: number;
+    lastSignatureSourceId: string | null;
+}
 // ── same interface that useFormData() used to return ─────────────────────────
 interface FormDataContextValue {
     formData: FinalFormData | null
@@ -40,6 +44,8 @@ interface FormDataContextValue {
     setError: React.Dispatch<React.SetStateAction<Error | null>>
     sectionMap: Record<string, keyof FinalFormData>
     submitFormData: () => Promise<void>
+    signatureMeta:SignatureMeta,
+    setSignatureMeta: React.Dispatch<React.SetStateAction<SignatureMeta>>
     handleInput: (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
         section: keyof FinalFormData
@@ -102,6 +108,11 @@ export function FormDataProvider({ children }: { children: ReactNode }) {
     const [postPatienForm]    = usePostPatientInfoMutation()
     const [uploadSignature]   = useUploadSignatureMutation()
     const [getSessionDetails] = useLazyGetSesionDetailsQuery()
+
+    const [signatureMeta,setSignatureMeta]=useState<SignatureMeta>({
+        signatureVersion: 0,
+        lastSignatureSourceId: null,
+    })
 
     // ── fetch ─────────────────────────────────────────────────────────────────
     const fetchFormData = async (patientId: string) => {
@@ -342,7 +353,7 @@ export function FormDataProvider({ children }: { children: ReactNode }) {
     const sectionMap = useMemo(() => formData ? buildMap(formData) : {}, [formData])
 
     return (
-        <FormDataContext.Provider value={{ formData, setFormData, isLoading, setIsLoading, error, setError, sectionMap, submitFormData, handleInput, handleHipaaChange }}>
+        <FormDataContext.Provider value={{ formData, setFormData, isLoading, setIsLoading, error, setError, sectionMap, submitFormData, handleInput, handleHipaaChange,signatureMeta,setSignatureMeta }}>
             {children}
         </FormDataContext.Provider>
     )

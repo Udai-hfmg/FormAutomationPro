@@ -36,7 +36,7 @@ const PrivacyPracticesForm = () => {
         <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-10">
          <div className="relative w-full overflow-visible">
   <label className="whitespace-nowrap ">Patient Signature</label>
- <SignatureField className="flex-1" value={formData?.signature instanceof Blob ? formData.signature : null} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+ <SignatureField className="flex-1" value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
 </div>
 
           <div className="flex items-end gap-2 w-full sm:w-60">
