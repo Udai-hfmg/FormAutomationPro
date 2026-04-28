@@ -35,9 +35,10 @@ const FacilityFolders: React.FC = () => {
   // 🔥 Fetch API
   useEffect(() => {
     const fetchFacilities = async () => {
+      setLoading(true)
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/Admin/facilities-with-forms?page=${page}&pageSize=${pageSize}`
+          `${import.meta.env.VITE_BASE_URL}/api/Admin/facilities-with-forms?page=${page}&pageSize=${pageSize}&search=${search}`
         );
 
         const data = await response.json();
@@ -65,41 +66,45 @@ const FacilityFolders: React.FC = () => {
     };
 
     fetchFacilities();
-  }, [page]);
+  }, [page,search]);
 
   // 🔥 Auto scroll active page into view
+  // useEffect(() => {
+  //   const active = document.querySelector(`[data-page="${page}"]`);
+  //   active?.scrollIntoView({
+  //     behavior: "smooth",
+  //     inline: "center",
+  //     block: "nearest",
+  //   });
+  // }, [page]);
+
+  // // 🔍 Search filter
+  // const filtered = useMemo(() => {
+  //   if (!search.trim()) return facilities;
+
+  //   const q = search.toLowerCase();
+
+  //   return facilities
+  //     .map((fac) => ({
+  //       ...fac,
+  //       forms:
+  //         fac.forms?.filter(
+  //           (f) =>
+  //             f.name.toLowerCase().includes(q) ||
+  //             f.description.toLowerCase().includes(q) ||
+  //             f.category.toLowerCase().includes(q)
+  //         ) ?? [],
+  //     }))
+  //     .filter(
+  //       (fac) =>
+  //         fac.officeName.toLowerCase().includes(q) ||
+  //         (fac.forms?.length ?? 0) > 0
+  //     );
+  // }, [search, facilities]);
+
   useEffect(() => {
-    const active = document.querySelector(`[data-page="${page}"]`);
-    active?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [page]);
-
-  // 🔍 Search filter
-  const filtered = useMemo(() => {
-    if (!search.trim()) return facilities;
-
-    const q = search.toLowerCase();
-
-    return facilities
-      .map((fac) => ({
-        ...fac,
-        forms:
-          fac.forms?.filter(
-            (f) =>
-              f.name.toLowerCase().includes(q) ||
-              f.description.toLowerCase().includes(q) ||
-              f.category.toLowerCase().includes(q)
-          ) ?? [],
-      }))
-      .filter(
-        (fac) =>
-          fac.officeName.toLowerCase().includes(q) ||
-          (fac.forms?.length ?? 0) > 0
-      );
-  }, [search, facilities]);
+  setPage(1);
+}, [search]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -136,8 +141,8 @@ const FacilityFolders: React.FC = () => {
         <div className="space-y-3">
           {loading ? (
             <p>Loading...</p>
-          ) : filtered.length > 0 ? (
-            filtered.map((facility, i) => (
+          ) : facilities.length > 0 ? (
+            facilities.map((facility, i) => (
               <FacilityFolder
                 key={i}
                 facility={facility}
