@@ -1,34 +1,67 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ExternalLink, Send, Eye, Loader2, AlertCircle } from 'lucide-react'
+import { X, ExternalLink, Send, Eye, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { type Form } from './FormCard'
 
 interface FormPreviewModalProps {
   isOpen: boolean
   onClose: () => void
-  form: Form | null
+  form: Form | Form[] | null
   onSend?: (form: Form) => void
 }
 
 const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, form, onSend }) => {
   const [iframeState, setIframeState] = useState<'loading' | 'loaded' | 'error'>('loading')
+  const [currentFormIndex, setCurrentFormIndex] = useState(0)
 
+  const forms = Array.isArray(form) ? form : (form ? [form] : [])
+  const currentForm = forms[currentFormIndex]
+  const isMultiple = forms.length > 1
+
+
+  console.log("Opening preview modal for form(s)", forms)
   const handleClose = () => {
     onClose()
-    // Reset state after animation
-    setTimeout(() => setIframeState('loading'), 300)
+    setTimeout(() => {
+      setIframeState('loading')
+      setCurrentFormIndex(0)
+    }, 300)
   }
 
   const handleSendFromPreview = () => {
-    handleClose()
-    if (form && onSend) onSend(form)
+    if (currentForm && onSend) {
+      onSend(currentForm)
+      handleClose()
+    }
+  }
+
+  const getEmbedUrl = (formLink: string) => {
+    try {
+      if(Array.isArray(form)){
+        const url = formLink
+        return window.location.origin + "/forms/" + form.map(f=>f.link).join(",")
+      }
+      const url =formLink
+      return url.toString()
+    } catch {
+      return formLink
+    }
+  }
+
+  const handlePrevious = () => {
+    setCurrentFormIndex(prev => (prev === 0 ? forms.length - 1 : prev - 1))
+    setIframeState('loading')
+  }
+
+  const handleNext = () => {
+    setCurrentFormIndex(prev => (prev === forms.length - 1 ? 0 : prev + 1))
+    setIframeState('loading')
   }
 
   return (
     <AnimatePresence>
-      {isOpen && form && (
+      {isOpen && currentForm && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -39,7 +72,6 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
             style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
           />
 
-          {/* Modal panel */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -59,22 +91,39 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                 className="flex items-center justify-between px-5 py-3.5 flex-shrink-0"
                 style={{ backgroundColor: '#1a5c38' }}
               >
-                {/* Left: icon + title */}
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0">
                     <Eye size={15} color="white" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate leading-tight">{form.name}</p>
-                    <p className="text-xs text-white/55 mt-0.5 truncate">{form.category} · Preview</p>
+                    <p className="text-sm font-bold text-white truncate leading-tight">{currentForm.name}</p>
+                    <p className="text-xs text-white/55 mt-0.5 truncate">
+                      {currentForm.category} · Preview
+                      {isMultiple && ` · ${currentFormIndex + 1} of ${forms.length}`}
+                    </p>
                   </div>
                 </div>
 
-                {/* Right: actions */}
                 <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                  {/* Open in new tab */}
+                  {isMultiple && (
+                    <>
+                      <button
+                        onClick={handlePrevious}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/15 transition-colors duration-150"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/15 transition-colors duration-150"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </>
+                  )}
+
                   <a
-                    href={form.link}
+                    href={currentForm.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 transition-all duration-150"
@@ -83,19 +132,19 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                     <span className="hidden sm:inline">Open</span>
                   </a>
 
-                  {/* Send from preview */}
-                  {onSend  && <button
-                    onClick={handleSendFromPreview}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
-                    onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, { backgroundColor: 'white', color: '#1a5c38' })}
-                    onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, { backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' })}
-                  >
-                    <Send size={12} />
-                    Send
-                  </button>}
+                  {onSend && (
+                    <button
+                      onClick={handleSendFromPreview}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
+                      onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, { backgroundColor: 'white', color: '#1a5c38' })}
+                      onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, { backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' })}
+                    >
+                      <Send size={12} />
+                      Send
+                    </button>
+                  )}
 
-                  {/* Close */}
                   <button
                     onClick={handleClose}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/15 transition-colors duration-150"
@@ -119,13 +168,12 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                       <path d="M6 3.5v2.5l1.5 1.5" stroke="#1a5c38" strokeWidth="1" strokeLinecap="round"/>
                     </svg>
                   </div>
-                  <span className="text-xs text-gray-500 truncate font-mono">{form.link}</span>
+                  <span className="text-xs text-gray-500 truncate font-mono">{getEmbedUrl(currentForm.link)}</span>
                 </div>
               </div>
 
               {/* ── iframe area ── */}
               <div className="relative flex-1 min-h-0 bg-gray-50">
-                {/* Loading state */}
                 <AnimatePresence>
                   {iframeState === 'loading' && (
                     <motion.div
@@ -144,7 +192,6 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   )}
                 </AnimatePresence>
 
-                {/* Error state */}
                 <AnimatePresence>
                   {iframeState === 'error' && (
                     <motion.div
@@ -161,7 +208,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                         This form can't be embedded. Open it directly in a new tab to view it.
                       </p>
                       <a
-                        href={form.link}
+                        href={currentForm.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-colors duration-150"
@@ -174,11 +221,10 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   )}
                 </AnimatePresence>
 
-                {/* iframe */}
                 <iframe
-                  key={form.link}
-                  src={form.link}
-                  title={form.name}
+                  key={`${currentForm.link}-${currentFormIndex}`}
+                  src={getEmbedUrl(currentForm.link)}
+                  title={currentForm.name}
                   className="w-full h-full border-0"
                   onLoad={() => setIframeState('loaded')}
                   onError={() => setIframeState('error')}
@@ -190,7 +236,7 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
               {/* ── Footer ── */}
               <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-white flex-shrink-0">
                 <p className="text-xs text-gray-400">
-                  Previewing · <span className="font-medium text-gray-600">{form.name}</span>
+                  Previewing · <span className="font-medium text-gray-600">{currentForm.name}</span>
                 </p>
                 <div className="flex items-center gap-2">
                   <button
@@ -199,16 +245,18 @@ const FormPreviewModal: React.FC<FormPreviewModalProps> = ({ isOpen, onClose, fo
                   >
                     Close
                   </button>
-                  {onSend &&<button
-                    onClick={handleSendFromPreview}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-colors duration-150"
-                    style={{ backgroundColor: '#1a5c38' }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#155030')}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#1a5c38')}
-                  >
-                    <Send size={12} />
-                    Send to Patient
-                  </button>}
+                  {onSend && (
+                    <button
+                      onClick={handleSendFromPreview}
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-colors duration-150"
+                      style={{ backgroundColor: '#1a5c38' }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#155030')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#1a5c38')}
+                    >
+                      <Send size={12} />
+                      Send to Patient
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

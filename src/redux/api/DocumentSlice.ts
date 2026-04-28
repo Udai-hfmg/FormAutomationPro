@@ -22,8 +22,21 @@ export const documentApi = createApi({
         }), 
         getSubmissionDocument:builder.query({
             query:()=>'api/Admin/get-sessions'
+        }) , 
+        postArchiveDocument:builder.mutation({
+            query:(data)=>({
+                url:"api/DocumentTypeVersion/archived",
+                method:"POST",
+                body:data
+            })
+        }) ,
+        getArchivedFacilityIds:builder.query({
+            query:(facilityId)=>`api/DocumentTypeVersion/archived/${facilityId}`
+        }),
+        getArchivedFormsByIds:builder.query({
+            query:(ids)=>`/api/DocumentTypeVersion/archived/form?ids=${ids.join(",")}`
         })
     })
 })
 
-export const {useGetDocumentsQuery, usePostDocumentVersionMutation, useGetSubmissionDocumentQuery, useGetDocumentTypesQuery}  = documentApi
+export const {useGetDocumentsQuery, usePostDocumentVersionMutation, useGetSubmissionDocumentQuery, useGetDocumentTypesQuery , usePostArchiveDocumentMutation , useGetArchivedFacilityIdsQuery , useLazyGetArchivedFacilityIdsQuery , useGetArchivedFormsByIdsQuery}  = documentApi

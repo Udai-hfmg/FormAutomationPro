@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import SearchFacility from "./SearchFacility";
-import { useGetDocumentsQuery, useGetDocumentTypesQuery } from "../../redux/api/DocumentSlice";
+import { useGetDocumentsQuery, useGetDocumentTypesQuery, usePostArchiveDocumentMutation } from "../../redux/api/DocumentSlice";
+import { useAppData } from "../../context/AppDataContext";
+import toast from "react-hot-toast";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Form {
@@ -41,11 +43,11 @@ const ALL_FACILITIES: Facility[] = [
 
 const STATUS_STYLES: Record<Form["status"], string> = {
   completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  pending:   "bg-amber-50 text-amber-700 border-amber-200",
-  draft:     "bg-gray-100 text-gray-500 border-gray-200",
+  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  draft: "bg-gray-100 text-gray-500 border-gray-200",
 };
 
-const fieldVariants : Variants= {
+const fieldVariants: Variants = {
   hidden: { opacity: 0, y: 14 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
@@ -64,10 +66,11 @@ export default function ArchiveFormModal({
   forms: any;
 }) {
   const [label, setLabel] = useState("");
-  console.log("this is forms data" , forms)
+  console.log("this is forms data", forms)
   // forms
   const [selectedForms, setSelectedForms] = useState<any>([1, 2, 3, 4]);
   const [expanded, setExpanded] = useState(false);
+
 
   // facilities multi-select
   const [facilityQuery, setFacilityQuery] = useState("");
@@ -77,27 +80,28 @@ export default function ArchiveFormModal({
 
   const PREVIEW_COUNT = 3;
 
-  const {data , isLoading , isError} = useGetDocumentsQuery("documents");
-  
+  const { user } = useAppData();
+  const { data, isLoading, isError } = useGetDocumentsQuery("documents");
+  const [createArchiveDocument, { isLoading: isArchiving }] = usePostArchiveDocumentMutation()
 
   // for getting for details 
-  useEffect(()=>{
-    if(forms.length > 0 && data){
-      console.log("data from api" , data)
-      setSelectedForms(data.filter((d:any) => forms.includes(d.documentVersionId)))
+  useEffect(() => {
+    if (forms.length > 0 && data) {
+      console.log("data from api", data)
+      setSelectedForms(data.filter((d: any) => forms.includes(d.documentVersionId)))
     }
-    
+
   }, [forms])
 
-  console.log("selected forms in modal" , selectedForms)
+  console.log("selected forms in modal", selectedForms)
 
   const mappedForms = selectedForms.map((f: any) => ({
-  id: f.documentVersionId,
-  label: f.versionLabel,
-  sub: f.documentType?.name,
-  date: f.retiredDate ? new Date(f.retiredDate).toDateString() : "No date",
-  status: f.retiredDate ? "completed" : "pending" // or your logic
-}));
+    id: f.documentVersionId,
+    label: f.versionLabel,
+    sub: f.documentType?.name,
+    date: f.retiredDate ? new Date(f.retiredDate).toDateString() : "No date",
+    status: f.retiredDate ? "completed" : "pending" // or your logic
+  }));
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -121,19 +125,41 @@ export default function ArchiveFormModal({
   }
 
   function toggleForm(id: number) {
-  setSelectedForms((prev:any[]) =>
-    prev.some(f => f.documentVersionId === id)
-      ? prev.filter(f => f.documentVersionId !== id)
-      : [...prev, data.find((d:any) => d.documentVersionId === id)]
-  );
-}
+    setSelectedForms((prev: any[]) =>
+      prev.some(f => f.documentVersionId === id)
+        ? prev.filter(f => f.documentVersionId !== id)
+        : [...prev, data.find((d: any) => d.documentVersionId === id)]
+    );
+  }
 
   function removeFacility(id: number) {
     setSelectedFacilities((prev) => prev.filter((x) => x !== id));
   }
 
+
+  async function handleFromSubmit() {
+    // your submit logic here, e.g. call an API to archive the forms with the selected facilities
+    console.log("Archiving with label:", label);
+    try {
+      if (forms.length === 0 && !label.trim()) return toast.error("No forms or label selected for archiving.")
+
+      const payload = {
+        label,
+        formIds: selectedForms.map((f: any) => f.documentVersionId), // ✅ FIXED
+        facilityIds: selectedFacilities,
+        archivedBy: user ? user.account : undefined
+      };
+      console.log("payload for archiving", payload)
+      await createArchiveDocument(payload).unwrap()
+      toast.success("Forms archived successfully!")
+      onClose()
+    } catch (err) {
+      console.log("error archiving forms", err)
+    }
+  }
+
   const visibleForms = expanded ? mappedForms : mappedForms.slice(0, PREVIEW_COUNT);
-const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length - PREVIEW_COUNT : 0;
+  const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length - PREVIEW_COUNT : 0;
   const isValid = label.trim() && selectedForms.length > 0 && selectedFacilities.length > 0;
 
   return (
@@ -221,7 +247,7 @@ const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length 
                   <div className="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                     <AnimatePresence initial={false}>
                       {visibleForms.map((form, idx) => {
-                        const isChecked = selectedForms.some((f:any) => f.documentVersionId === form.id);
+                        const isChecked = selectedForms.some((f: any) => f.documentVersionId === form.id);
                         return (
                           <motion.div
                             key={form.id}
@@ -231,7 +257,7 @@ const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length 
                             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                           >
                             <div
-                              onClick={() => toggleForm(form.id)}
+
                               className={`flex items-center gap-3 px-4 py-3 cursor-pointer
                                          transition-colors group select-none
                                          ${isChecked ? "bg-[#f0faf4]" : "bg-white hover:bg-gray-50"}
@@ -241,9 +267,9 @@ const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length 
                               <div className={`w-4.5 h-4.5 rounded-md border-2 flex items-center justify-center
                                               flex-shrink-0 transition-all duration-150
                                               ${isChecked
-                                                ? "bg-[#1d5c3a] border-[#1d5c3a]"
-                                                : "border-gray-300 group-hover:border-[#1d5c3a]/50"
-                                              }`}
+                                  ? "bg-[#1d5c3a] border-[#1d5c3a]"
+                                  : "border-gray-300 group-hover:border-[#1d5c3a]/50"
+                                }`}
                                 style={{ width: "18px", height: "18px" }}
                               >
                                 {isChecked && (
@@ -340,9 +366,11 @@ const hiddenCount = mappedForms.length - PREVIEW_COUNT > 0 ? mappedForms.length 
                   className={`flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center
                               justify-center gap-2 transition-all duration-200
                               ${isValid
-                                ? "bg-[#1d5c3a] text-white shadow-md shadow-[#1d5c3a]/25 hover:bg-[#174d30]"
-                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                              }`}
+                      ? "bg-[#1d5c3a] text-white shadow-md shadow-[#1d5c3a]/25 hover:bg-[#174d30]"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+
+                  onClick={handleFromSubmit}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

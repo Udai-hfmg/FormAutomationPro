@@ -21,7 +21,7 @@ const FacilityFolders: React.FC = () => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const [sendModal, setSendModal] = useState<{
-    form: Form;
+    form: Form[] | Form | null;
     facility: Facility;
   } | null>(null);
 
@@ -29,6 +29,8 @@ const FacilityFolders: React.FC = () => {
     (sum, f) => sum + (f.forms?.length ?? 0),
     0
   );
+
+  
 
   // 🔥 Fetch API
   useEffect(() => {
@@ -51,15 +53,7 @@ const FacilityFolders: React.FC = () => {
           isActive: item.isActive ?? true,
           phone: item.phone,
           zipcode: item.zipcode,
-          color: "green",
-
-          forms: (item.forms || []).map((f: any) => ({
-            id: f.documentVersionId,
-            name: f.versionLabel,
-            description: "",
-            category: "General",
-            link: f.templatePath
-          })),
+          color: "green",   
         }));
 
         setFacilities(mapped);
@@ -163,8 +157,7 @@ const FacilityFolders: React.FC = () => {
       <SendFormModal
         isOpen={!!sendModal}
         onClose={() => setSendModal(null)}
-        form={sendModal?.form ?? null}
-        // facility={sendModal?.facility ?? null} 
+        facility={sendModal?.form ?? null}
       />
 
       {/* 🔥 PAGINATION */}

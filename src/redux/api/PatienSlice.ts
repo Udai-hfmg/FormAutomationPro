@@ -53,8 +53,11 @@ export const patientApi = createApi({
 
     getSesionDetails: builder.query({
       query: (sessionId: string) => `api/Admin/get-session/${sessionId}`
+    }),
+    getSessionbyOfficeIds:builder.query({
+      query:(officeIds:number[])=>`api/Admin/get-sessions/filter?officeIds=${officeIds.join(",")}`
     })
   })
 })
 
-export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery, useUploadSignatureMutation, useLazyGetSesionDetailsQuery } = patientApi
+export const { useGetPatientInfoQuery, usePostPatientInfoMutation, useGetSesionDetailsQuery, useUploadSignatureMutation, useLazyGetSesionDetailsQuery, useLazyGetSessionbyOfficeIdsQuery } = patientApi

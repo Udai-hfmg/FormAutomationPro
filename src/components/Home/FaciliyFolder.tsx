@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, Building2, FolderOpen, Folder } from 'lucide-react'
 
 import FormCard, { type Form } from './FormCard'
+import { useGetArchivedFacilityIdsQuery, useGetArchivedFormsByIdsQuery } from '../../redux/api/DocumentSlice'
 
 
 
@@ -95,11 +96,12 @@ const colorSchemes = {
 const FacilityFolder: React.FC<FacilityFolderProps> = ({ facility, index, onSendForm }) => {
 
   const [isOpen, setIsOpen] = useState(false)
-
+  console.log("Rendering folder for facility", facility)
   const c = colorSchemes[index % 2 === 0 ? 'green' : 'red']
 
-
-
+  const {data:archivedIds , isLoading:isArchivedIdsLoading , isError:isArchivedIdsError} = useGetArchivedFacilityIdsQuery(facility.officeid)
+  console.log("Archived IDs for facility", facility.officeid, archivedIds)
+  
   return (
 
     <motion.div
@@ -254,13 +256,22 @@ const FacilityFolder: React.FC<FacilityFolderProps> = ({ facility, index, onSend
 
             <div className="px-5 py-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
 
-              {(facility?.forms || []).map((form, i) => (
+              {(archivedIds || []).map((form, i) => (
 
                 <FormCard
 
                   key={form.id}
 
-                  form={form}
+                  form={{
+                    id: form.id,
+                    name: form.label,
+                    description: "Archived Form",
+                    category: "Archived",
+                    link:"" , 
+                    formIds:form.formIds
+                  }}
+
+                
 
                   index={i}
 

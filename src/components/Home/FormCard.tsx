@@ -2,13 +2,15 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { FileText, Send, Eye } from 'lucide-react'
 import FormPreviewModal from './FormPreviewModal'
+import { useGetArchivedFormsByIdsQuery } from '../../redux/api/DocumentSlice'
 
 export interface Form {
   id: string
   name: string
   description: string
   link: string
-  category: string
+  category: string , 
+  formIds:number[]
 }
 
 interface FormCardProps {
@@ -21,10 +23,29 @@ interface FormCardProps {
 const FormCard: React.FC<FormCardProps> = ({ form, onSend, onPreview, index }) => {
 
     const [isOpen , setIsOpen] = React.useState(false)
+    const {data:archivedForms , isLoading:isArchivedFormsLoading , isError:isArchivedFormsError} = useGetArchivedFormsByIdsQuery(form.formIds ?? [], {skip: !form.formIds || form.formIds.length === 0})
+    console.log("Archived forms for facility", archivedForms)
+
+    const selectedArchivedForm = archivedForms?.map((f: any)=>({
+      id:f.documentVersionId,
+      name:f.versionLabel,
+      templatePath:f.templatePath,
+    }))
+
+    console.log("Transformed archived forms", selectedArchivedForm)
+
+    const transformedArchivedForms: Form[] = selectedArchivedForm?.map((f: any) => ({
+      id: f.id,
+      name: f.name,
+      description: '',
+      link: f.templatePath || '',
+      category: form.category,
+      formIds: [],
+    })) || []
 
   return (
     <>
-      <FormPreviewModal isOpen={isOpen} onSend={()=>{onSend(form)}} onClose={() => {setIsOpen(false)}} form={form} />
+      <FormPreviewModal isOpen={isOpen}  onClose={() => {setIsOpen(false)}} form={transformedArchivedForms} />
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -74,7 +95,7 @@ const FormCard: React.FC<FormCardProps> = ({ form, onSend, onPreview, index }) =
 
         {/* Send */}
         <button
-          onClick={(e) => { e.stopPropagation(); onSend(form) }}
+          onClick={(e) => { e.stopPropagation(); onSend(selectedArchivedForm) }}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
           style={{
             backgroundColor: 'rgba(26,92,56,0.08)',
