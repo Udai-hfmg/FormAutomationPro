@@ -89,7 +89,7 @@ const PaymentAndCollectionPolicy = () => {
             Signature of Patient or Patient's Legal Representative
           </label>
 
-          <SignatureField className="flex-1" value={typeof formData?.signature === 'string' ? null : formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+          <SignatureField className="flex-1" value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
 
         </div>
 

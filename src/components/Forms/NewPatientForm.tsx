@@ -261,7 +261,7 @@ console.log('formData in NewPatientForm', formData)
 
           <div className="flex items-end gap-2 flex-1">
             <label>SIGNATURE</label>
-           <SignatureField className="flex-1"   value={typeof formData?.signature === 'string' ? null : formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
+           <SignatureField className="flex-1" value={formData?.signature} onChange={(blob) => setFormData((prev: any) => ({ ...prev, signature: blob }))} />
           </div>
 
           <div className="flex items-end gap-2 w-48">
