@@ -5,6 +5,8 @@ import { type Form } from './FormCard'
 import { type Facility } from './FaciliyFolder'
 import useFormData from '../../hooks/useFormData'
 import SearchPatient from './SearchPatientId'
+import SearchFacility from './SearchFacility'
+import toast from 'react-hot-toast'
 
 const BASR_URL = import.meta.env.VITE_BASE_URL
 
@@ -29,43 +31,48 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [sendVia, setSendVia] = useState<'email' | 'sms'>('sms')
+  const [officeId, setOfficeId] = useState<number[]>([])
 
-  const { formData } = useFormData()
-
-  const patientId = formData?.patientDemographic?.patientId
-  const phoneNumber = formData?.newPatient?.phonePrimary || formData?.newPatient?.phoneAlternate || ""
-
-  const formLink = `${window.location.origin}/forms?patientId=${patientName}`;
 
   const canSend = (sendVia === 'email' ? email : phone)
 
+  console.log("SendFormModal received props", { form, facility, officeId })
+
   const handleSend = async () => {
   if (!canSend) return;
+ try{
+
 
   // build comma-separated formLinks from selected files' templatePaths
   const formLinks = Array.isArray(facility)
     ? facility.map(f => f.templatePath).join(',')
     : facility?.templatePath;
 
-  const facilityNames = Array.isArray(facility)
-    ? facility.map(f => f.name).join(',')
-    : facility?.name;
+  const facilityNames = Array.isArray(officeId)
+    ? officeId.map(id => id.toString()).join(',')
+    : officeId;
 
     console.log("this is forms id" , formLinks)
-
-  await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+    const payload =  {
       phone,
       formLink: formLinks,      // ← now carries all selected form paths
       patientId: patientName,
-      facilityId: facilityNames,
-    }),
+      officeId: facilityNames,
+    }
+
+    console.log("Sending form with payload", payload)
+  await fetch(`${import.meta.env.VITE_BASE_URL}/api/Admin/twilio-send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   setStep('success');
+}catch(error){
+  console.error("Error sending form", error)
+  toast.error("Failed to send form. Please try again.")
 };
+  }
 
   const handlePhoneNumber = (phone:string)=>{
     setPhone(phone)
@@ -227,6 +234,15 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
                           onFocus={e => (e.target.style.borderColor = '#1a5c38')}
                           onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
                         />
+                      </div>
+                    </div>
+
+                    {/* Facility search */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1.5">Search Facility</label>
+                      <div className="relative">
+                        <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <SearchFacility ids={officeId}  setFacilityIds={setOfficeId} />
                       </div>
                     </div>
 

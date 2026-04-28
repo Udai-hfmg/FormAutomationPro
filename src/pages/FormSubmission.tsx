@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Eye, Download, CheckCircle2, Clock, XCircle, AlertCircle,
@@ -7,6 +7,8 @@ import {
 import Navbar from '../components/Home/Navbar'
 import ReusableTable, { type ColumnDef } from '../components/UI/SubmissionTable'
 import { useGetSubmissionDocumentQuery } from '../redux/api/DocumentSlice'
+import SearchFacility from '../components/Home/SearchFacility'
+import { useLazyGetSessionbyOfficeIdsQuery } from '../redux/api/PatienSlice'
 
 // ── API shape (raw from backend) ──────────────────────────────────────────────
 interface ApiSubmission {
@@ -52,11 +54,11 @@ const computeExpiresIn = (expiresAt: string, status: FormSubmission['status']): 
   if (status === 'completed') return 'Never'
   const diff = new Date(expiresAt).getTime() - Date.now()
   if (diff <= 0) return 'Expired'
-  const totalMins  = Math.floor(diff / 60000)
-  const days       = Math.floor(totalMins / 1440)
-  const hours      = Math.floor((totalMins % 1440) / 60)
-  const mins       = totalMins % 60
-  if (days > 0)  return `${days}d ${hours}h`
+  const totalMins = Math.floor(diff / 60000)
+  const days = Math.floor(totalMins / 1440)
+  const hours = Math.floor((totalMins % 1440) / 60)
+  const mins = totalMins % 60
+  if (days > 0) return `${days}d ${hours}h`
   if (hours > 0) return `${hours}h ${mins}m`
   return `${mins}m`
 }
@@ -67,8 +69,8 @@ const mapSubmission = (s: ApiSubmission): FormSubmission => {
   return {
     sessionId: s.sessionId,
     patientId: s.patientId != null ? `${s.patientId}` : '—',
-    senderId:  `${s.senderId}`,
-    formIds:   s.formIds,
+    senderId: `${s.senderId}`,
+    formIds: s.formIds,
     status,
     expiresIn: computeExpiresIn(s.expiresAt, status),
     expiresAt: s.expiresAt,
@@ -78,9 +80,9 @@ const mapSubmission = (s: ApiSubmission): FormSubmission => {
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 const statusConfig = {
-  completed: { label: 'Completed', icon: CheckCircle2, bg: 'rgba(26,92,56,0.08)',    border: 'rgba(26,92,56,0.25)',    text: '#1a5c38' },
-  pending:   { label: 'Pending',   icon: Clock,        bg: 'rgba(202,138,4,0.08)',   border: 'rgba(202,138,4,0.3)',    text: '#b45309' },
-  expired:   { label: 'Expired',   icon: XCircle,      bg: 'rgba(107,114,128,0.08)', border: 'rgba(107,114,128,0.25)', text: '#6b7280' },
+  completed: { label: 'Completed', icon: CheckCircle2, bg: 'rgba(26,92,56,0.08)', border: 'rgba(26,92,56,0.25)', text: '#1a5c38' },
+  pending: { label: 'Pending', icon: Clock, bg: 'rgba(202,138,4,0.08)', border: 'rgba(202,138,4,0.3)', text: '#b45309' },
+  expired: { label: 'Expired', icon: XCircle, bg: 'rgba(107,114,128,0.08)', border: 'rgba(107,114,128,0.25)', text: '#6b7280' },
 }
 
 const StatusBadge: React.FC<{ status: FormSubmission['status'] }> = ({ status }) => {
@@ -101,7 +103,7 @@ const SubmissionPreviewModal: React.FC<{
   submission: FormSubmission | null
   onClose: () => void
 }> = ({ submission, onClose }) => {
-  const [loaded, setLoaded]   = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [errored, setErrored] = useState(false)
 
   const handleClose = () => {
@@ -210,38 +212,51 @@ const SubmissionPreviewModal: React.FC<{
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 const FormSubmissionsTable: React.FC = () => {
-  const [preview, setPreview]           = useState<FormSubmission | null>(null)
+  const [preview, setPreview] = useState<FormSubmission | null>(null)
   const [statusFilter, setStatusFilter] = useState<FormSubmission['status'] | 'all'>('all')
+  const [officeId, setOfficeId] = useState<number[]>([])
 
   const { data: rawData, isLoading, isError } = useGetSubmissionDocumentQuery("submissions")
-
+  const [getsubmissionsByOfficeIds, { data: filteredData, isLoading: isFilteredLoading, isError: isFilteredError }] = useLazyGetSessionbyOfficeIdsQuery()
   // Map + filter by status pill
-  const submissions: FormSubmission[] = (rawData ?? [])
-    .map(mapSubmission)
-    .filter((s:any) => statusFilter === 'all' || s.status === statusFilter)
+
 
   // Stat cards derived from ALL data (before status filter)
   const all = (rawData ?? []).map(mapSubmission)
   const stats = {
-    total:     all.length,
-    completed: all.filter((s:any) => s.status === 'completed').length,
-    pending:   all.filter((s:any) => s.status === 'pending').length,
-    expired:   all.filter((s:any) => s.status === 'expired').length,
+    total: all.length,
+    completed: all.filter((s: any) => s.status === 'completed').length,
+    pending: all.filter((s: any) => s.status === 'pending').length,
+    expired: all.filter((s: any) => s.status === 'expired').length,
   }
 
-const handleDownload = (sub: FormSubmission) => {
-  const url = `/subforms?token=${sub.sessionId}&preview=true`
-  const popup = window.open(url, '_blank', 'width=900,height=700')
-  if (!popup) return
+  const handleDownload = (sub: FormSubmission) => {
+    const url = `/subforms?token=${sub.sessionId}&preview=true`
+    const popup = window.open(url, '_blank', 'width=900,height=700')
+    if (!popup) return
 
-  popup.addEventListener('load', () => {
-    // Wait for React + data fetch to finish rendering
-    setTimeout(() => {
-      popup.focus()
-      popup.print()
-    }, 2500)          // bump up if your form is slow to load
-  })
-}
+    popup.addEventListener('load', () => {
+      // Wait for React + data fetch to finish rendering
+      setTimeout(() => {
+        popup.focus()
+        popup.print()
+      }, 2500)          // bump up if your form is slow to load
+    })
+  }
+
+  useEffect(() => {
+    if (officeId.length > 0) {
+      getsubmissionsByOfficeIds(officeId)
+    }
+  }, [officeId])
+
+  const sourceData = officeId.length > 0 ? filteredData : rawData
+
+  const submissions: FormSubmission[] = (sourceData ?? [])
+    .map(mapSubmission)
+    .filter((s: any) => statusFilter === 'all' || s.status === statusFilter)
+
+  console.log("Mapped submissions", submissions)
 
   // ── Column definitions ────────────────────────────────────────────────────
   const columns: ColumnDef<FormSubmission>[] = [
@@ -294,10 +309,9 @@ const handleDownload = (sub: FormSubmission) => {
       label: 'Expires In',
       sortable: false,
       render: (row: FormSubmission) => (
-        <span className={`text-xs font-medium ${
-          row.expiresIn === 'Expired' ? 'text-gray-400 line-through' :
-          row.expiresIn === 'Never'   ? 'text-gray-400' : 'text-amber-600'
-        }`}>
+        <span className={`text-xs font-medium ${row.expiresIn === 'Expired' ? 'text-gray-400 line-through' :
+            row.expiresIn === 'Never' ? 'text-gray-400' : 'text-amber-600'
+          }`}>
           {row.expiresIn}
         </span>
       ),
@@ -355,10 +369,10 @@ const handleDownload = (sub: FormSubmission) => {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             {[
-              { label: 'Total',    value: stats.total,     color: '#1a5c38', bg: 'rgba(26,92,56,0.06)',    border: 'rgba(26,92,56,0.15)'    },
-              { label: 'Completed', value: stats.completed, color: '#1a5c38', bg: 'rgba(26,92,56,0.06)',   border: 'rgba(26,92,56,0.15)'    },
-              { label: 'Pending',  value: stats.pending,   color: '#b45309', bg: 'rgba(202,138,4,0.06)',   border: 'rgba(202,138,4,0.2)'    },
-              { label: 'Expired',  value: stats.expired,   color: '#9b1c3a', bg: 'rgba(155,28,58,0.06)',   border: 'rgba(155,28,58,0.15)'   },
+              { label: 'Total', value: stats.total, color: '#1a5c38', bg: 'rgba(26,92,56,0.06)', border: 'rgba(26,92,56,0.15)' },
+              { label: 'Completed', value: stats.completed, color: '#1a5c38', bg: 'rgba(26,92,56,0.06)', border: 'rgba(26,92,56,0.15)' },
+              { label: 'Pending', value: stats.pending, color: '#b45309', bg: 'rgba(202,138,4,0.06)', border: 'rgba(202,138,4,0.2)' },
+              { label: 'Expired', value: stats.expired, color: '#9b1c3a', bg: 'rgba(155,28,58,0.06)', border: 'rgba(155,28,58,0.15)' },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
@@ -371,22 +385,28 @@ const handleDownload = (sub: FormSubmission) => {
           </motion.div>
 
           {/* Status filter pills */}
-          <div className="flex items-center gap-1.5 flex-wrap mb-4">
-            {(['all', 'completed', 'pending', 'expired'] as const).map(s => (
-              <button key={s}
-                onClick={() => setStatusFilter(s)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-150 border"
-                style={statusFilter === s
-                  ? { backgroundColor: '#1a5c38', color: 'white', borderColor: '#1a5c38' }
-                  : { backgroundColor: 'white', color: '#6b7280', borderColor: '#e5e7eb' }
-                }>
-                {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
+          <div className='flex flex-row justify-between'>
+            <div className="flex items-center gap-1.5 flex-wrap mb-4">
+              {(['all', 'completed', 'pending', 'expired'] as const).map(s => (
+                <button key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-150 border"
+                  style={statusFilter === s
+                    ? { backgroundColor: '#1a5c38', color: 'white', borderColor: '#1a5c38' }
+                    : { backgroundColor: 'white', color: '#6b7280', borderColor: '#e5e7eb' }
+                  }>
+                  {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className='w-1/4 scroll-auto h-10'>
+              <SearchFacility ids={officeId} setFacilityIds={setOfficeId} />
+
+            </div>
           </div>
 
           {/* Loading / Error states */}
-          {isLoading && (
+          {(isLoading || isFilteredLoading) && (
             <div className="flex items-center justify-center py-20 text-gray-400 gap-2">
               <RefreshCw size={16} className="animate-spin" />
               <span className="text-sm">Loading submissions…</span>
@@ -399,8 +419,7 @@ const handleDownload = (sub: FormSubmission) => {
             </div>
           )}
 
-          {/* Table */}
-          {!isLoading && !isError && (
+          {!(isLoading || isFilteredLoading) && !(isError || isFilteredError) && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.4 }}>
               <ReusableTable<FormSubmission>
