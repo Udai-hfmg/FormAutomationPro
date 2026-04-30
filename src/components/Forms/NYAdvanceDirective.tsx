@@ -251,6 +251,8 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
   const [patSigB64,   setPatSigB64]   = useState<string | null>(null);
   const [wit1SigB64,  setWit1SigB64]  = useState<string | null>(null);
   const [wit2SigB64,  setWit2SigB64]  = useState<string | null>(null);
+  const[sessionId,setSessionId]=useState<string | null>(null);
+
 
   /* ── Acknowledgment ── */
   const [ackChecked, setAckChecked] = useState(false);
@@ -266,6 +268,11 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
     el.textContent = DOC_CSS;
     document.head.appendChild(el);
   }, []);
+
+  useEffect(()=>{
+  const token=new URLSearchParams(window.location.search).get("token");
+  setSessionId(token)
+  },[])
 
   /* ─────────────────────────────────────────────────────────────────────────
      CONFLICT DETECTION
@@ -352,6 +359,8 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
       .catch(err => console.error("[ACP] Load error:", err))
       .finally(() => setLoading(false));
   }, [patientId]);
+  // console.log('this is the token',sessionId);
+
 
   /* ─────────────────────────────────────────────────────────────────────────
      SUBMIT
@@ -361,6 +370,7 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
     toast.error("Please resolve the conflicts before submitting");
     return;
   }
+  
 
   const missing: string[] = [];
   if (!myName)         missing.push("Your full legal name (Part I)");
@@ -448,6 +458,7 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
         { name: witness1.name, date: witness1.date, address: witness1.addr, signature_image: wit1SigFinal },
         { name: witness2.name, date: witness2.date, address: witness2.addr, signature_image: wit2SigFinal },
       ],
+      SessionId:sessionId
     };
 
     const res = await fetch(`${API_BASE}/api/AcpForm/submit`, {
@@ -484,7 +495,7 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
   if (loading) {
     return (
       <>
-        <Navbar />
+        {/* <Navbar /> */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 12 }}>
           <svg style={{ animation: "spin 1s linear infinite", width: 32, height: 32, color: GREEN }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -502,18 +513,18 @@ export default function NYAdvanceDirective({ patientId }: NYAdvanceDirectiveProp
   ───────────────────────────────────────────────────────────────────────── */
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="ad-root">
 
         {/* ── Header ── */}
         <div style={{ background: GREEN, padding: "14px 22px", display: "flex", alignItems: "center", gap: 14, borderRadius: "8px 8px 0 0" }}>
           <div style={{ width: 46, height: 46, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+            {/* <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
               <circle cx="15" cy="8" r="5" fill={BURG} />
               <ellipse cx="15" cy="22" rx="9" ry="6" fill={BURG} />
               <circle cx="5.5" cy="14" r="3.2" fill={BURG} opacity=".65" />
               <circle cx="24.5" cy="14" r="3.2" fill={BURG} opacity=".65" />
-            </svg>
+            </svg> */}
           </div>
           <div>
             <div style={{ color: "rgba(255,255,255,.8)", fontSize: 11.5, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase" }}>Horizon Family Medical Group</div>
