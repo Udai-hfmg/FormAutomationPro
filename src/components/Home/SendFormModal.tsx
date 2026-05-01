@@ -19,12 +19,12 @@ interface SendFormModalProps {
   isOpen: boolean
   onClose: () => void
   form?: Form | null
-  facility?: File[] | File | null
+  facility?: File[] | File | null , 
   showCaution?:boolean
 }
 
 const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, facility, showCaution }) => {
-  const [step, setStep] = useState<'compose' | 'success' | 'error'>('compose')
+  const [step, setStep] = useState<'compose' | 'success'>('compose')
   const [patientName, setPatientName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -72,12 +72,6 @@ const SendFormModal: React.FC<SendFormModalProps> = ({ isOpen, onClose, form, fa
       FacilityId: facilityNames,
     }),
   });
-  console.log('this is the status',send);
-  
-  if(!send){
-    setStep('error')
-  }
-console.log(step);
 
   setStep('success');
 };
