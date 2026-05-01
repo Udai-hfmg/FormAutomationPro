@@ -9,7 +9,7 @@ const FacilityFolders: React.FC = () => {
   const [search, setSearch] = useState("");
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [formCount, setFormCount] = useState(0);
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -30,6 +30,7 @@ const FacilityFolders: React.FC = () => {
     0
   );
 
+  
   
 
   // 🔥 Fetch API
@@ -102,7 +103,19 @@ const FacilityFolders: React.FC = () => {
   //     );
   // }, [search, facilities]);
 
+   async function getFormCount() {
+    try{
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/DocumentTypeVersion/form/count`)
+      const data = await response.json()
+      setFormCount(data)
+      // console.log("Form count for facility", facility.officeid, data)
+    }catch(error){
+      console.error("Error fetching form count", error)
+    }
+  }
+
   useEffect(() => {
+    getFormCount();
   setPage(1);
 }, [search]);
 
@@ -121,8 +134,8 @@ const FacilityFolders: React.FC = () => {
           </h1>
 
           <div className="flex gap-4 mt-3">
-            <span>{facilities.length} Facilities</span>
-            <span>{totalForms} Forms</span>
+            <span>{totalPages*pageSize} Facilities</span>
+            <span>{formCount} Forms</span>
           </div>
 
           {/* SEARCH */}

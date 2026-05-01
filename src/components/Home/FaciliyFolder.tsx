@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -96,11 +96,30 @@ const colorSchemes = {
 const FacilityFolder: React.FC<FacilityFolderProps> = ({ facility, index, onSendForm }) => {
 
   const [isOpen, setIsOpen] = useState(false)
+  const [formCount, setFormCount] = useState(0)
   console.log("Rendering folder for facility", facility)
   const c = colorSchemes[index % 2 === 0 ? 'green' : 'red']
 
   const {data:archivedIds , isLoading:isArchivedIdsLoading , isError:isArchivedIdsError} = useGetArchivedFacilityIdsQuery(facility.officeid)
   console.log("Archived IDs for facility", facility.officeid, archivedIds)
+
+  // get no of forms through facility id
+  async function getFormCount() {
+    try{
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/DocumentTypeVersion/form/count?id=${facility.officeid}`)
+      const data = await response.json()
+      setFormCount(data)
+      console.log("Form count for facility", facility.officeid, data)
+    }catch(error){
+      console.error("Error fetching form count", error)
+    }
+  }
+
+  useEffect(() => {
+    if(facility.officeid){
+      getFormCount()
+    }
+  }, [facility.officeid])
   
   return (
 
@@ -198,7 +217,7 @@ const FacilityFolder: React.FC<FacilityFolderProps> = ({ facility, index, onSend
 
             <span className="font-semibold" style={{ color: c.count }}>
 
-              {facility.forms?.length || 0} form{facility.forms?.length !== 1 ? 's' : ''}
+              {formCount ?? 0} {formCount === 1 ? 'Form' : 'Forms'}
 
             </span>
 
